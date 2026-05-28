@@ -4,7 +4,7 @@
   "description": "FOSS CLI for EU AI Act Annex IV compliance — validate declarations, generate dossiers.",
   "type": "module",
   "bin": {
-    "actcheck": "./dist/cli.js"
+    "actcheck": "dist/cli.js"
   },
   "files": [
     "dist",
@@ -15,7 +15,9 @@
     "dev": "tsc --watch",
     "test": "vitest run",
     "test:watch": "vitest",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "prepublishOnly": "npm run lint && npm test && npm run build",
+    "release": "npm publish --access public"
   },
   "keywords": [
     "eu-ai-act",
