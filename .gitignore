@@ -1,4 +1,3 @@
-.worktrees/
 tmp/
 node_modules/
 dist/
@@ -9,4 +8,3 @@ docs/
 .professor/
 .claude/
 CLAUDE.md
-AGENTS.md

@@ -18,8 +18,18 @@ Route on the first argument: `fill` runs the Fill protocol below; `explain` runs
 ## Shared grounding
 
 - **The form** — `.actcheck/annex-iv.yaml`, created by `actcheck init`. Its field list, requirement levels (`[REQUIRED]` / `[CONDITIONAL]` / `[RECOMMENDED]`), and per-field clause annotations come from `schemas/annex-iv/v1/template.yaml`, `schema.yaml`, and `traceability.yaml`.
-- **The law** — `resources/reg-2024-1689-full.txt`, the verbatim Official Journal text of Regulation (EU) 2024/1689 (Annex IV begins at the `ANNEX IV` heading). Quote it; never paraphrase a requirement into existence.
+- **The law** — `resources/reg-2024-1689/`, the verbatim Regulation (EU) 2024/1689 split into one file per provision, with `INDEX.md` as the router. Quote it; never paraphrase a requirement into existence.
 - **The map** — nine Annex IV points to nine top-level form sections: `general_description` §1, `development` §2, `monitoring` §3, `performance_metrics` §4, `risk_management` §5, `lifecycle_changes` §6, `standards` §7, `declaration_of_conformity` §8, `post_market_monitoring` §9.
+
+## Finding a clause in the law
+
+The law lives in `resources/reg-2024-1689/` as per-provision files. To answer from it:
+
+1. Open `resources/reg-2024-1689/INDEX.md` first. It routes an address (Annex IV point, Article number, or a schema field via `traceability.yaml`) to exactly one file, and lists each provision's `see_also` cross-references.
+2. Open that one file and quote the clause verbatim. The file is small and self-identifying (it starts with its heading), so reading it whole is cheap and exact.
+3. If the clause cites another provision (e.g. Annex IV §8 → Article 47), open that file too — never restate a cross-referenced requirement from memory.
+4. Read every Annex IV point together with the annex preamble ("…as applicable to the relevant AI system") at the top of `annex-iv-technical-documentation.md` — points are conditional on the system, not unconditional.
+5. Use `full.txt` only for a provision the index doesn't list. Never grep the flat text to locate a clause — bare article numbers and point letters like `(d)` recur as cross-references throughout and return noise.
 
 ## The actcheck CLI
 
@@ -53,8 +63,8 @@ Explain what an Annex IV field, section, or article requires, grounded in the ve
 
 When invoked:
 1. Identify the target — a schema field path, an Annex IV point (e.g. §2(b)), or an article (e.g. Article 11).
-2. Find its clause and EUR-Lex anchor in `schemas/annex-iv/v1/traceability.yaml`.
-3. Quote the governing text from `resources/reg-2024-1689-full.txt` verbatim, then explain in plain language what it asks for and what a sufficient answer looks like.
+2. Route it to its provision file via the "Finding a clause in the law" steps above (INDEX.md, plus `traceability.yaml` for a field's EUR-Lex anchor).
+3. Quote the governing text verbatim from that file, then explain in plain language what it asks for and what a sufficient answer looks like.
 4. Point to the matching field(s) in the form so the user knows where the answer belongs.
 
 Quote the law; never present a paraphrase as the text. Where the regulation is silent or ambiguous, say so rather than filling the gap with invention.

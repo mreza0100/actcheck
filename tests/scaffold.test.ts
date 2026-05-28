@@ -85,7 +85,9 @@ describe("skill install", () => {
     scaffoldWorkspace(cwd);
     const base = join(cwd, WORKSPACE_DIR, "skills", "actcheck");
     expect(existsSync(join(base, "SKILL.md"))).toBe(true);
-    expect(existsSync(join(base, "resources", "reg-2024-1689-full.txt"))).toBe(true);
+    expect(existsSync(join(base, "resources", "reg-2024-1689", "INDEX.md"))).toBe(true);
+    expect(existsSync(join(base, "resources", "reg-2024-1689", "annex-iv-technical-documentation.md"))).toBe(true);
+    expect(existsSync(join(base, "resources", "reg-2024-1689", "full.txt"))).toBe(true);
   });
 
   it("installs into an existing .claude/skills dir instead of .actcheck", () => {
