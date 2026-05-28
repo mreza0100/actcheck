@@ -342,8 +342,10 @@ $defs:
           - key_design_choices
           - target_persons_groups
           - optimization_targets
+          - parameter_relevance
           - expected_output
           - output_quality
+          - compliance_tradeoffs
         additionalProperties: false
         properties:
           general_logic:
@@ -382,6 +384,7 @@ $defs:
             description: "What the system is designed to optimise for."
           parameter_relevance:
             type: string
+            minLength: 10
             description: "Relevance of the different parameters."
           expected_output:
             type: string
@@ -393,7 +396,12 @@ $defs:
             description: "Description of expected output quality."
           compliance_tradeoffs:
             type: string
-            description: "Trade-offs regarding technical solutions for Chapter III, Section 2 compliance."
+            minLength: 10
+            description: >
+              Decisions about any trade-off made regarding the technical solutions
+              adopted to comply with Chapter III, Section 2. Required to be present;
+              if no trade-offs were made, state so explicitly (e.g. "No trade-offs
+              were made between technical solutions in meeting the requirements.").
 
       # Annex IV(2)(c)
       architecture:

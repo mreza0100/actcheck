@@ -110,19 +110,18 @@ fields:
 
   - path: development.design_specifications.classification_choices
     annex_iv: "2(b)"
-    requirement: recommended
+    requirement: conditional
+    condition: "where the system performs classification"
     regulation_text: "the main classification choices"
 
   - path: development.design_specifications.optimization_targets
     annex_iv: "2(b)"
     requirement: required
-    regulation_text: >
-      what the system is designed to optimise for, and the relevance of
-      the different parameters
+    regulation_text: "what the system is designed to optimise for"
 
   - path: development.design_specifications.parameter_relevance
     annex_iv: "2(b)"
-    requirement: recommended
+    requirement: required
     regulation_text: "the relevance of the different parameters"
 
   - path: development.design_specifications.expected_output
@@ -137,7 +136,8 @@ fields:
 
   - path: development.design_specifications.compliance_tradeoffs
     annex_iv: "2(b)"
-    requirement: recommended
+    requirement: conditional
+    condition: "where trade-offs were made; an explicit 'none' attestation is an acceptable value and is required to be present"
     regulation_text: >
       the decisions about any possible trade-off made regarding the technical
       solutions adopted to comply with the requirements set out in Chapter III,
@@ -294,9 +294,9 @@ fields:
 
 summary:
   total_fields: 42
-  required: 28
-  conditional: 7
-  recommended: 7
+  required: 29
+  conditional: 9
+  recommended: 4
   annex_iv_sections_covered: 9
   annex_iv_sections_total: 9
   coverage: "100%"

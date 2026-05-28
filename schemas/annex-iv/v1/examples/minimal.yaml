@@ -34,8 +34,10 @@ development:
         rationale: "Sufficient accuracy for 12-class problem with lower inference cost."
     target_persons_groups: "Internal employees across all departments submitting documents for routing."
     optimization_targets: "Classification accuracy and low latency (< 200ms per document)."
+    parameter_relevance: "Classification head weights dominate routing decisions; encoder layers are frozen and contribute fixed features."
     expected_output: "Category label (one of 12) with confidence score."
     output_quality: "92% accuracy on held-out test set (F1 macro: 0.89)."
+    compliance_tradeoffs: "No trade-offs were made between technical solutions in meeting the Chapter III, Section 2 requirements."
   architecture:
     description: "FastAPI service wrapping HuggingFace transformers pipeline. Single container, GPU inference."
   human_oversight:

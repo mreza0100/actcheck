@@ -1,6 +1,7 @@
 import { resolve } from "node:path";
-import { writeFileSync, unlinkSync, mkdirSync } from "node:fs";
+import { writeFileSync, unlinkSync, mkdirSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
+import yaml from "js-yaml";
 import { describe, it, expect, afterEach } from "vitest";
 import { validate, coverage, loadSchema } from "../src/validator.js";
 
@@ -42,6 +43,27 @@ describe("validate", () => {
     expect(result.valid).toBe(true);
     expect(result.errorCount).toBe(0);
   });
+
+  // Regression guard for the Annex IV(2)(b) ruling: parameter_relevance and
+  // compliance_tradeoffs are mandatory content, not optional. Dropping either
+  // from an otherwise-valid declaration MUST fail validation — a green result
+  // here would be exactly the false-compliance signal the ruling closed.
+  it.each(["parameter_relevance", "compliance_tradeoffs"])(
+    "rejects a declaration missing design_specifications.%s",
+    (field) => {
+      const doc = yaml.load(
+        readFileSync(resolve(EXAMPLES_DIR, "minimal.yaml"), "utf-8"),
+      ) as Record<string, any>;
+      delete doc.development.design_specifications[field];
+      const path = writeTempYaml(yaml.dump(doc));
+      const result = validate(path);
+      expect(result.valid).toBe(false);
+      const missing = result.errors.find(
+        (e) => e.message.includes(field) && e.message.includes("required"),
+      );
+      expect(missing).toBeDefined();
+    },
+  );
 
   it("rejects empty document", () => {
     const path = writeTempYaml("actcheck:\n  schema_version: '1.0.0'\n");

@@ -124,12 +124,12 @@ development:
         rationale: "FILL: why this choice"
         assumptions: ""                       # [RECOMMENDED]
     target_persons_groups: "FILL: persons/groups the system is used on or for."
-    classification_choices: ""                # [RECOMMENDED] main classification choices
+    classification_choices: ""                # [CONDITIONAL] main classification choices (where the system classifies)
     optimization_targets: "FILL: what the system optimises for."
-    parameter_relevance: ""                   # [RECOMMENDED] relevance of parameters
+    parameter_relevance: "FILL: relevance of the different parameters."  # [REQUIRED]
     expected_output: "FILL: the expected output."
     output_quality: "FILL: expected output quality."
-    compliance_tradeoffs: ""                  # [RECOMMENDED] trade-offs re Chapter III §2
+    compliance_tradeoffs: "FILL: trade-offs made to meet Chapter III §2, or state that none were made."  # [CONDITIONAL] required to be present
 
   # §2(c) [REQUIRED] System architecture and computational resources.
   architecture:
