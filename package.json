@@ -1,6 +1,6 @@
 {
   "name": "actcheck",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "FOSS CLI for EU AI Act Annex IV compliance — validate declarations, generate dossiers.",
   "type": "module",
   "bin": {

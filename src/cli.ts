@@ -30,7 +30,7 @@ import {
   scaffoldWorkspace,
 } from "./scaffold.js";
 
-const VERSION = "0.1.0";
+const VERSION = "1.0.0";
 
 interface ValidateOptions {
   schemaVersion?: string;
