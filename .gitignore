@@ -1,0 +1,12 @@
+.worktrees/
+tmp/
+node_modules/
+dist/
+*.tsbuildinfo
+
+# Private working material — not part of the public product
+docs/
+.professor/
+.claude/
+CLAUDE.md
+AGENTS.md

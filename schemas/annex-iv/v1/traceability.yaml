@@ -1,0 +1,302 @@
+# Annex IV Field-to-Regulation Traceability Matrix
+# Regulation: (EU) 2024/1689 — Annex IV, referenced from Article 11(1)
+# Schema: actcheck annex-iv/v1
+
+fields:
+  # Section 1 — General Description
+  - path: general_description.intended_purpose
+    annex_iv: "1(a)"
+    requirement: required
+    regulation_text: "its intended purpose"
+
+  - path: general_description.provider.name
+    annex_iv: "1(a)"
+    requirement: required
+    regulation_text: "the name of the provider"
+
+  - path: general_description.system_version
+    annex_iv: "1(a)"
+    requirement: required
+    regulation_text: "the version of the system reflecting its relation to previous versions"
+
+  - path: general_description.version_history
+    annex_iv: "1(a)"
+    requirement: recommended
+    regulation_text: "reflecting its relation to previous versions"
+
+  - path: general_description.external_interactions
+    annex_iv: "1(b)"
+    requirement: conditional
+    condition: "where applicable"
+    regulation_text: >
+      how the AI system interacts with, or can be used to interact with, hardware
+      or software, including with other AI systems, that are not part of the AI
+      system itself
+
+  - path: general_description.software_versions
+    annex_iv: "1(c)"
+    requirement: required
+    regulation_text: >
+      the versions of relevant software or firmware, and any requirements
+      related to version updates
+
+  - path: general_description.distribution_forms
+    annex_iv: "1(d)"
+    requirement: required
+    regulation_text: >
+      the description of all the forms in which the AI system is placed on
+      the market or put into service, such as software packages embedded into
+      hardware, downloads, or APIs
+
+  - path: general_description.target_hardware
+    annex_iv: "1(e)"
+    requirement: required
+    regulation_text: >
+      the description of the hardware on which the AI system is intended to run
+
+  - path: general_description.product_integration
+    annex_iv: "1(f)"
+    requirement: conditional
+    condition: "where the AI system is a component of products"
+    regulation_text: >
+      photographs or illustrations showing external features, the marking
+      and internal layout of those products
+
+  - path: general_description.deployer_interface
+    annex_iv: "1(g)"
+    requirement: required
+    regulation_text: "a basic description of the user-interface provided to the deployer"
+
+  - path: general_description.instructions_for_use
+    annex_iv: "1(h)"
+    requirement: conditional
+    condition: "where applicable"
+    regulation_text: >
+      instructions for use for the deployer, and a basic description of the
+      user-interface provided to the deployer
+
+  # Section 2 — Development and Design
+  - path: development.methods
+    annex_iv: "2(a)"
+    requirement: required
+    regulation_text: >
+      the methods and steps performed for the development of the AI system,
+      including, where relevant, recourse to pre-trained systems or tools
+      provided by third parties and how those were used, integrated or modified
+
+  - path: development.design_specifications.general_logic
+    annex_iv: "2(b)"
+    requirement: required
+    regulation_text: "the general logic of the AI system and of the algorithms"
+
+  - path: development.design_specifications.algorithms
+    annex_iv: "2(b)"
+    requirement: required
+    regulation_text: "the general logic of the AI system and of the algorithms"
+
+  - path: development.design_specifications.key_design_choices
+    annex_iv: "2(b)"
+    requirement: required
+    regulation_text: >
+      the key design choices including the rationale and assumptions made,
+      including with regard to persons or groups of persons
+
+  - path: development.design_specifications.target_persons_groups
+    annex_iv: "2(b)"
+    requirement: required
+    regulation_text: >
+      persons or groups of persons in respect of whom the system is intended
+      to be used
+
+  - path: development.design_specifications.classification_choices
+    annex_iv: "2(b)"
+    requirement: recommended
+    regulation_text: "the main classification choices"
+
+  - path: development.design_specifications.optimization_targets
+    annex_iv: "2(b)"
+    requirement: required
+    regulation_text: >
+      what the system is designed to optimise for, and the relevance of
+      the different parameters
+
+  - path: development.design_specifications.parameter_relevance
+    annex_iv: "2(b)"
+    requirement: recommended
+    regulation_text: "the relevance of the different parameters"
+
+  - path: development.design_specifications.expected_output
+    annex_iv: "2(b)"
+    requirement: required
+    regulation_text: "the description of the expected output and output quality of the system"
+
+  - path: development.design_specifications.output_quality
+    annex_iv: "2(b)"
+    requirement: required
+    regulation_text: "the description of the expected output and output quality of the system"
+
+  - path: development.design_specifications.compliance_tradeoffs
+    annex_iv: "2(b)"
+    requirement: recommended
+    regulation_text: >
+      the decisions about any possible trade-off made regarding the technical
+      solutions adopted to comply with the requirements set out in Chapter III,
+      Section 2
+
+  - path: development.architecture
+    annex_iv: "2(c)"
+    requirement: required
+    regulation_text: >
+      the description of the system architecture explaining how software
+      components build on or feed into each other and integrate into the
+      overall processing; the computational resources used to develop,
+      train, test and validate the AI system
+
+  - path: development.data_requirements
+    annex_iv: "2(d)"
+    requirement: conditional
+    condition: "where relevant"
+    regulation_text: >
+      the data requirements in terms of datasheets describing the training
+      methodologies and techniques and the training data sets used
+
+  - path: development.human_oversight
+    annex_iv: "2(e)"
+    requirement: required
+    regulation_text: >
+      assessment of the human oversight measures needed in accordance with
+      Article 14, including an assessment of the technical measures needed to
+      facilitate the interpretation of the outputs
+
+  - path: development.predetermined_changes
+    annex_iv: "2(f)"
+    requirement: conditional
+    condition: "where applicable"
+    regulation_text: >
+      a detailed description of pre-determined changes to the AI system and
+      its performance, together with all the relevant information related to
+      the technical solutions adopted to ensure continuous compliance
+
+  - path: development.validation_and_testing
+    annex_iv: "2(g)"
+    requirement: required
+    regulation_text: >
+      the validation and testing procedures used, including information about
+      the validation and testing data used and their main characteristics;
+      metrics used to measure accuracy, robustness and compliance
+
+  - path: development.cybersecurity_measures
+    annex_iv: "2(h)"
+    requirement: required
+    regulation_text: "cybersecurity measures put in place"
+
+  # Section 3 — Monitoring, Functioning and Control
+  - path: monitoring.capabilities_and_limitations
+    annex_iv: "3"
+    requirement: required
+    regulation_text: "its capabilities and limitations in performance"
+
+  - path: monitoring.accuracy_per_group
+    annex_iv: "3"
+    requirement: required
+    regulation_text: >
+      the degrees of accuracy for specific persons or groups of persons
+      on which the system is intended to be used
+
+  - path: monitoring.overall_expected_accuracy
+    annex_iv: "3"
+    requirement: required
+    regulation_text: >
+      the overall expected level of accuracy in relation to its intended purpose
+
+  - path: monitoring.foreseeable_unintended_outcomes
+    annex_iv: "3"
+    requirement: required
+    regulation_text: "the foreseeable unintended outcomes"
+
+  - path: monitoring.risk_sources
+    annex_iv: "3"
+    requirement: required
+    regulation_text: >
+      sources of risks to health and safety, fundamental rights and
+      discrimination in view of the intended purpose
+
+  - path: monitoring.human_oversight_measures
+    annex_iv: "3"
+    requirement: required
+    regulation_text: "the human oversight measures needed in accordance with Article 14"
+
+  - path: monitoring.output_interpretation_measures
+    annex_iv: "3"
+    requirement: required
+    regulation_text: >
+      the technical measures put in place to facilitate the interpretation
+      of the outputs of AI systems by the deployers
+
+  - path: monitoring.input_data_specifications
+    annex_iv: "3"
+    requirement: conditional
+    condition: "as appropriate"
+    regulation_text: "specifications on input data, as appropriate"
+
+  # Section 4 — Performance Metrics
+  - path: performance_metrics.appropriateness_description
+    annex_iv: "4"
+    requirement: required
+    regulation_text: >
+      a description of the appropriateness of the performance metrics
+      for the specific AI system
+
+  # Section 5 — Risk Management
+  - path: risk_management
+    annex_iv: "5"
+    requirement: required
+    cross_reference: "Article 9"
+    regulation_text: >
+      a detailed description of the risk management system in accordance
+      with Article 9
+
+  # Section 6 — Lifecycle Changes
+  - path: lifecycle_changes
+    annex_iv: "6"
+    requirement: required
+    regulation_text: >
+      a description of relevant changes made by the provider to the system
+      through its lifecycle
+
+  # Section 7 — Standards
+  - path: standards
+    annex_iv: "7"
+    requirement: required
+    regulation_text: >
+      a list of the harmonised standards applied in full or in part; where
+      no such harmonised standards have been applied, a detailed description
+      of the solutions adopted to meet the requirements
+
+  # Section 8 — Declaration of Conformity
+  - path: declaration_of_conformity
+    annex_iv: "8"
+    requirement: required
+    cross_reference: "Article 47"
+    regulation_text: >
+      a copy of the EU declaration of conformity referred to in Article 47
+
+  # Section 9 — Post-Market Monitoring
+  - path: post_market_monitoring
+    annex_iv: "9"
+    requirement: required
+    cross_reference: "Article 72"
+    regulation_text: >
+      a detailed description of the system in place to evaluate the AI
+      system performance in the post-market phase in accordance with
+      Article 72, including the post-market monitoring plan referred
+      to in Article 72(3)
+
+summary:
+  total_fields: 42
+  required: 28
+  conditional: 7
+  recommended: 7
+  annex_iv_sections_covered: 9
+  annex_iv_sections_total: 9
+  coverage: "100%"

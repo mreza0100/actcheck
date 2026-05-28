@@ -1,0 +1,54 @@
+{
+  "name": "actcheck",
+  "version": "0.1.0",
+  "description": "FOSS CLI for EU AI Act Annex IV compliance — validate declarations, generate dossiers.",
+  "type": "module",
+  "bin": {
+    "actcheck": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "schemas"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "tsc --noEmit"
+  },
+  "keywords": [
+    "eu-ai-act",
+    "compliance",
+    "annex-iv",
+    "validation",
+    "dossier",
+    "regulation"
+  ],
+  "author": "Reza Mohammadi <mrez9090@gmail.com>",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mreza0100/actcheck.git"
+  },
+  "homepage": "https://github.com/mreza0100/actcheck#readme",
+  "bugs": {
+    "url": "https://github.com/mreza0100/actcheck/issues"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "ajv": "^8.17.0",
+    "ajv-formats": "^3.0.0",
+    "commander": "^13.0.0",
+    "js-yaml": "^4.1.0",
+    "picocolors": "^1.1.0"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
+  }
+}

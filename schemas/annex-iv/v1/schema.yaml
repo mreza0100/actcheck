@@ -1,0 +1,905 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://actcheck.dev/schemas/annex-iv/v1/schema.yaml"
+title: "EU AI Act Annex IV Technical Documentation"
+description: >
+  Machine-readable schema for technical documentation required by
+  Annex IV of Regulation (EU) 2024/1689 (EU AI Act).
+
+type: object
+required:
+  - actcheck
+  - general_description
+  - development
+  - monitoring
+  - performance_metrics
+  - risk_management
+  - lifecycle_changes
+  - standards
+  - declaration_of_conformity
+  - post_market_monitoring
+additionalProperties: false
+
+properties:
+  actcheck:
+    $ref: "#/$defs/actcheck_meta"
+  general_description:
+    $ref: "#/$defs/general_description"
+  development:
+    $ref: "#/$defs/development"
+  monitoring:
+    $ref: "#/$defs/monitoring"
+  performance_metrics:
+    $ref: "#/$defs/performance_metrics"
+  risk_management:
+    $ref: "#/$defs/risk_management"
+  lifecycle_changes:
+    $ref: "#/$defs/lifecycle_changes"
+  standards:
+    $ref: "#/$defs/standards"
+  declaration_of_conformity:
+    $ref: "#/$defs/declaration_of_conformity"
+  post_market_monitoring:
+    $ref: "#/$defs/post_market_monitoring"
+
+$defs:
+  # ──────────────────────────────────────────────
+  # Meta
+  # ──────────────────────────────────────────────
+  actcheck_meta:
+    type: object
+    x-annex-iv: "meta"
+    description: "actcheck declaration metadata."
+    required:
+      - schema_version
+    additionalProperties: false
+    properties:
+      schema_version:
+        type: string
+        pattern: "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+        description: "Schema version this declaration targets (semver)."
+      declaration_date:
+        type: string
+        format: date
+        description: "Date this declaration was created or last updated."
+      tool_version:
+        type: string
+        description: "actcheck CLI version used to generate/validate."
+
+  # ──────────────────────────────────────────────
+  # Section 1 — General Description
+  # Annex IV(1)
+  # ──────────────────────────────────────────────
+  general_description:
+    type: object
+    x-annex-iv: "1"
+    description: "A general description of the AI system."
+    required:
+      - intended_purpose
+      - provider
+      - system_version
+      - software_versions
+      - distribution_forms
+      - target_hardware
+      - deployer_interface
+    additionalProperties: false
+    properties:
+      # Annex IV(1)(a)
+      intended_purpose:
+        type: string
+        minLength: 10
+        x-annex-iv: "1(a)"
+        x-requirement: required
+        description: "The intended purpose of the AI system."
+      provider:
+        type: object
+        x-annex-iv: "1(a)"
+        x-requirement: required
+        required:
+          - name
+        additionalProperties: false
+        properties:
+          name:
+            type: string
+            minLength: 1
+            description: "Legal name of the provider."
+          address:
+            type: string
+            x-requirement: recommended
+            description: "Registered address of the provider."
+          contact:
+            type: string
+            x-requirement: recommended
+            description: "Contact information (email or phone)."
+      system_version:
+        type: string
+        minLength: 1
+        x-annex-iv: "1(a)"
+        x-requirement: required
+        description: "Version of the system reflecting its relation to previous versions."
+      version_history:
+        type: string
+        x-annex-iv: "1(a)"
+        x-requirement: recommended
+        description: "Narrative of how this version relates to previous versions."
+
+      # Annex IV(1)(b)
+      external_interactions:
+        type: object
+        x-annex-iv: "1(b)"
+        x-requirement: conditional
+        description: "How the system interacts with external hardware, software, or other AI systems."
+        additionalProperties: false
+        properties:
+          description:
+            type: string
+            minLength: 10
+          hardware_interfaces:
+            type: array
+            items:
+              type: string
+          software_interfaces:
+            type: array
+            items:
+              type: object
+              required: [name, interaction]
+              additionalProperties: false
+              properties:
+                name:
+                  type: string
+                type:
+                  type: string
+                interaction:
+                  type: string
+          ai_system_interfaces:
+            type: array
+            items:
+              type: object
+              required: [name, interaction]
+              additionalProperties: false
+              properties:
+                name:
+                  type: string
+                interaction:
+                  type: string
+
+      # Annex IV(1)(c)
+      software_versions:
+        type: object
+        x-annex-iv: "1(c)"
+        x-requirement: required
+        description: "Versions of relevant software or firmware and update requirements."
+        required:
+          - components
+        additionalProperties: false
+        properties:
+          components:
+            type: array
+            minItems: 1
+            items:
+              type: object
+              required: [name, version]
+              additionalProperties: false
+              properties:
+                name:
+                  type: string
+                version:
+                  type: string
+          update_requirements:
+            type: string
+            description: "Requirements related to version updates."
+
+      # Annex IV(1)(d)
+      distribution_forms:
+        type: array
+        minItems: 1
+        x-annex-iv: "1(d)"
+        x-requirement: required
+        description: "Forms in which the system is placed on the market or put into service."
+        items:
+          type: object
+          required: [form, description]
+          additionalProperties: false
+          properties:
+            form:
+              type: string
+              enum:
+                - software_package
+                - embedded_hardware
+                - download
+                - api
+                - saas
+                - other
+            description:
+              type: string
+
+      # Annex IV(1)(e)
+      target_hardware:
+        type: string
+        minLength: 10
+        x-annex-iv: "1(e)"
+        x-requirement: required
+        description: "Hardware on which the AI system is intended to run."
+
+      # Annex IV(1)(f)
+      product_integration:
+        type: object
+        x-annex-iv: "1(f)"
+        x-requirement: conditional
+        description: "Required where the AI system is a component of products."
+        required:
+          - is_component_of_product
+        additionalProperties: false
+        properties:
+          is_component_of_product:
+            type: boolean
+            description: "Whether the AI system is embedded in a physical product."
+          product_photos:
+            type: array
+            items:
+              type: string
+              description: "File path to photograph or illustration."
+          external_features:
+            type: string
+          marking:
+            type: string
+          internal_layout:
+            type: string
+
+      # Annex IV(1)(g)
+      deployer_interface:
+        type: string
+        minLength: 10
+        x-annex-iv: "1(g)"
+        x-requirement: required
+        description: "Basic description of the user-interface provided to the deployer."
+
+      # Annex IV(1)(h)
+      instructions_for_use:
+        type: string
+        x-annex-iv: "1(h)"
+        x-requirement: conditional
+        description: "Instructions for use for the deployer."
+
+    # Conditional: if product_integration.is_component_of_product is true,
+    # require product_photos, external_features, marking, internal_layout.
+    if:
+      properties:
+        product_integration:
+          properties:
+            is_component_of_product:
+              const: true
+    then:
+      properties:
+        product_integration:
+          required:
+            - is_component_of_product
+            - product_photos
+            - external_features
+            - marking
+            - internal_layout
+
+  # ──────────────────────────────────────────────
+  # Section 2 — Development and Design
+  # Annex IV(2)
+  # ──────────────────────────────────────────────
+  development:
+    type: object
+    x-annex-iv: "2"
+    description: "Detailed description of the elements and development process."
+    required:
+      - methods
+      - design_specifications
+      - architecture
+      - human_oversight
+      - validation_and_testing
+      - cybersecurity_measures
+    additionalProperties: false
+    properties:
+      # Annex IV(2)(a)
+      methods:
+        type: object
+        x-annex-iv: "2(a)"
+        x-requirement: required
+        description: "Methods and steps performed for development."
+        required:
+          - development_steps
+        additionalProperties: false
+        properties:
+          development_steps:
+            type: string
+            minLength: 10
+          third_party_components:
+            type: array
+            items:
+              type: object
+              required: [name, type, usage]
+              additionalProperties: false
+              properties:
+                name:
+                  type: string
+                type:
+                  type: string
+                  enum:
+                    - pre_trained_model
+                    - tool
+                    - library
+                    - framework
+                    - dataset
+                    - other
+                usage:
+                  type: string
+                  description: "How the component was used, integrated, or modified."
+
+      # Annex IV(2)(b) — decomposed
+      design_specifications:
+        type: object
+        x-annex-iv: "2(b)"
+        x-requirement: required
+        description: "Design specifications including logic, algorithms, and design choices."
+        required:
+          - general_logic
+          - algorithms
+          - key_design_choices
+          - target_persons_groups
+          - optimization_targets
+          - expected_output
+          - output_quality
+        additionalProperties: false
+        properties:
+          general_logic:
+            type: string
+            minLength: 10
+            description: "General logic of the AI system."
+          algorithms:
+            type: string
+            minLength: 10
+            description: "Description of the algorithms used."
+          key_design_choices:
+            type: array
+            minItems: 1
+            items:
+              type: object
+              required: [choice, rationale]
+              additionalProperties: false
+              properties:
+                choice:
+                  type: string
+                rationale:
+                  type: string
+                assumptions:
+                  type: string
+            description: "Key design choices with rationale and assumptions."
+          target_persons_groups:
+            type: string
+            minLength: 10
+            description: "Persons or groups the system is intended to be used on or for."
+          classification_choices:
+            type: string
+            description: "Main classification choices made."
+          optimization_targets:
+            type: string
+            minLength: 10
+            description: "What the system is designed to optimise for."
+          parameter_relevance:
+            type: string
+            description: "Relevance of the different parameters."
+          expected_output:
+            type: string
+            minLength: 10
+            description: "Description of the expected output."
+          output_quality:
+            type: string
+            minLength: 10
+            description: "Description of expected output quality."
+          compliance_tradeoffs:
+            type: string
+            description: "Trade-offs regarding technical solutions for Chapter III, Section 2 compliance."
+
+      # Annex IV(2)(c)
+      architecture:
+        type: object
+        x-annex-iv: "2(c)"
+        x-requirement: required
+        description: "System architecture and computational resources."
+        required:
+          - description
+        additionalProperties: false
+        properties:
+          description:
+            type: string
+            minLength: 10
+            description: "How software components build on or feed into each other."
+          component_diagram:
+            type: string
+            description: "File path to architecture diagram."
+          computational_resources:
+            type: object
+            additionalProperties: false
+            properties:
+              development:
+                type: string
+              training:
+                type: string
+              testing:
+                type: string
+              validation:
+                type: string
+
+      # Annex IV(2)(d) — conditional
+      data_requirements:
+        type: object
+        x-annex-iv: "2(d)"
+        x-requirement: conditional
+        description: "Data requirements and training data information (where relevant)."
+        additionalProperties: false
+        properties:
+          training_methodologies:
+            type: string
+            description: "Training methodologies and techniques used."
+          training_datasets:
+            type: array
+            items:
+              type: object
+              required: [name, description, provenance]
+              additionalProperties: false
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                provenance:
+                  type: string
+                scope:
+                  type: string
+                characteristics:
+                  type: string
+          data_selection:
+            type: string
+            description: "How the data was obtained and selected."
+          labeling_procedures:
+            type: string
+            description: "Labelling procedures (e.g. for supervised learning)."
+          data_cleaning:
+            type: string
+            description: "Data cleaning methodologies (e.g. outliers detection)."
+
+      # Annex IV(2)(e)
+      human_oversight:
+        type: object
+        x-annex-iv: "2(e)"
+        x-requirement: required
+        description: "Assessment of human oversight measures per Article 14."
+        required:
+          - assessment
+          - interpretability_measures
+        additionalProperties: false
+        properties:
+          assessment:
+            type: string
+            minLength: 10
+            description: "Assessment of human oversight measures needed per Article 14."
+          interpretability_measures:
+            type: string
+            minLength: 10
+            description: "Technical measures to facilitate output interpretation per Article 13(3)(d)."
+
+      # Annex IV(2)(f) — conditional
+      predetermined_changes:
+        type: object
+        x-annex-iv: "2(f)"
+        x-requirement: conditional
+        description: "Pre-determined changes to the system (where applicable)."
+        required:
+          - has_predetermined_changes
+        additionalProperties: false
+        properties:
+          has_predetermined_changes:
+            type: boolean
+            description: "Whether pre-determined changes are planned."
+          changes:
+            type: array
+            items:
+              type: object
+              required: [description]
+              additionalProperties: false
+              properties:
+                description:
+                  type: string
+                trigger:
+                  type: string
+                expected_impact:
+                  type: string
+          performance_impact:
+            type: string
+            description: "Impact on system performance."
+          continuous_compliance:
+            type: string
+            description: "Technical solutions for continuous compliance with Chapter III, Section 2."
+
+      # Annex IV(2)(g)
+      validation_and_testing:
+        type: object
+        x-annex-iv: "2(g)"
+        x-requirement: required
+        description: "Validation and testing procedures, data, metrics, and logs."
+        required:
+          - procedures
+          - test_data
+          - metrics
+        additionalProperties: false
+        properties:
+          procedures:
+            type: string
+            minLength: 10
+            description: "Validation and testing procedures used."
+          test_data:
+            type: object
+            required: [description]
+            additionalProperties: false
+            properties:
+              description:
+                type: string
+              characteristics:
+                type: string
+          metrics:
+            type: object
+            required: [accuracy, robustness]
+            additionalProperties: false
+            properties:
+              accuracy:
+                type: string
+                description: "Metrics used to measure accuracy."
+              robustness:
+                type: string
+                description: "Metrics used to measure robustness."
+              compliance_metrics:
+                type: string
+                description: "Metrics for compliance with Chapter III, Section 2."
+              discrimination_assessment:
+                type: string
+                description: "Assessment of potentially discriminatory impacts."
+          test_logs:
+            type: array
+            description: "Test reports dated and signed by responsible persons."
+            items:
+              type: object
+              required: [file, date, signed_by]
+              additionalProperties: false
+              properties:
+                file:
+                  type: string
+                  description: "File path to the test report."
+                date:
+                  type: string
+                  format: date
+                signed_by:
+                  type: string
+          predetermined_change_tests:
+            type: string
+            description: "Testing regarding pre-determined changes per 2(f)."
+
+      # Annex IV(2)(h)
+      cybersecurity_measures:
+        type: string
+        minLength: 10
+        x-annex-iv: "2(h)"
+        x-requirement: required
+        description: "Cybersecurity measures put in place."
+
+    # Conditional: if predetermined_changes.has_predetermined_changes is true,
+    # require changes array and continuous_compliance.
+    if:
+      properties:
+        predetermined_changes:
+          properties:
+            has_predetermined_changes:
+              const: true
+    then:
+      properties:
+        predetermined_changes:
+          required:
+            - has_predetermined_changes
+            - changes
+            - continuous_compliance
+
+  # ──────────────────────────────────────────────
+  # Section 3 — Monitoring, Functioning and Control
+  # Annex IV(3)
+  # ──────────────────────────────────────────────
+  monitoring:
+    type: object
+    x-annex-iv: "3"
+    description: "Monitoring, functioning and control of the AI system."
+    required:
+      - capabilities_and_limitations
+      - accuracy_per_group
+      - overall_expected_accuracy
+      - foreseeable_unintended_outcomes
+      - risk_sources
+      - human_oversight_measures
+      - output_interpretation_measures
+    additionalProperties: false
+    properties:
+      capabilities_and_limitations:
+        type: string
+        minLength: 10
+        x-annex-iv: "3"
+        x-requirement: required
+        description: "Capabilities and limitations in performance."
+      accuracy_per_group:
+        type: array
+        minItems: 1
+        x-annex-iv: "3"
+        x-requirement: required
+        description: "Degrees of accuracy for specific persons or groups."
+        items:
+          type: object
+          required: [group, accuracy]
+          additionalProperties: false
+          properties:
+            group:
+              type: string
+            accuracy:
+              type: string
+      overall_expected_accuracy:
+        type: string
+        minLength: 10
+        x-annex-iv: "3"
+        x-requirement: required
+        description: "Overall expected level of accuracy in relation to intended purpose."
+      foreseeable_unintended_outcomes:
+        type: string
+        minLength: 10
+        x-annex-iv: "3"
+        x-requirement: required
+        description: "Foreseeable unintended outcomes."
+      risk_sources:
+        type: object
+        x-annex-iv: "3"
+        x-requirement: required
+        description: "Sources of risks in view of the intended purpose."
+        required:
+          - health_and_safety
+          - fundamental_rights
+          - discrimination
+        additionalProperties: false
+        properties:
+          health_and_safety:
+            type: string
+          fundamental_rights:
+            type: string
+          discrimination:
+            type: string
+      human_oversight_measures:
+        type: string
+        minLength: 10
+        x-annex-iv: "3"
+        x-requirement: required
+        description: "Human oversight measures needed per Article 14."
+      output_interpretation_measures:
+        type: string
+        minLength: 10
+        x-annex-iv: "3"
+        x-requirement: required
+        description: "Technical measures to facilitate output interpretation by deployers."
+      input_data_specifications:
+        type: string
+        x-annex-iv: "3"
+        x-requirement: conditional
+        description: "Specifications on input data, as appropriate."
+
+  # ──────────────────────────────────────────────
+  # Section 4 — Performance Metrics Appropriateness
+  # Annex IV(4)
+  # ──────────────────────────────────────────────
+  performance_metrics:
+    type: object
+    x-annex-iv: "4"
+    description: "Appropriateness of performance metrics for this specific AI system."
+    required:
+      - appropriateness_description
+    additionalProperties: false
+    properties:
+      appropriateness_description:
+        type: string
+        minLength: 20
+        x-annex-iv: "4"
+        x-requirement: required
+        description: "Why the chosen performance metrics are appropriate for this specific system."
+
+  # ──────────────────────────────────────────────
+  # Section 5 — Risk Management System
+  # Annex IV(5) / Article 9
+  # ──────────────────────────────────────────────
+  risk_management:
+    type: object
+    x-annex-iv: "5"
+    description: "Risk management system in accordance with Article 9."
+    required:
+      - system_description
+      - risk_identification
+      - risk_evaluation
+      - risk_mitigation_measures
+    additionalProperties: false
+    properties:
+      system_description:
+        type: string
+        minLength: 10
+        x-annex-iv: "5"
+        x-requirement: required
+        description: "Overall description of the risk management system."
+      risk_identification:
+        type: string
+        minLength: 10
+        x-annex-iv: "5"
+        x-requirement: required
+        description: "How risks are identified and analysed."
+      risk_estimation:
+        type: string
+        x-annex-iv: "5"
+        x-requirement: recommended
+        description: "How risks are estimated (likelihood and severity)."
+      risk_evaluation:
+        type: string
+        minLength: 10
+        x-annex-iv: "5"
+        x-requirement: required
+        description: "How risks are evaluated and prioritised."
+      risk_mitigation_measures:
+        type: string
+        minLength: 10
+        x-annex-iv: "5"
+        x-requirement: required
+        description: "Risk mitigation and control measures adopted."
+      residual_risks:
+        type: string
+        x-annex-iv: "5"
+        x-requirement: recommended
+        description: "Description of residual risks after mitigation."
+      lifecycle_process:
+        type: string
+        x-annex-iv: "5"
+        x-requirement: recommended
+        description: "How risk management is maintained throughout the lifecycle."
+
+  # ──────────────────────────────────────────────
+  # Section 6 — Lifecycle Changes
+  # Annex IV(6)
+  # ──────────────────────────────────────────────
+  lifecycle_changes:
+    type: object
+    x-annex-iv: "6"
+    description: "Relevant changes made by the provider through the system lifecycle."
+    required:
+      - changes
+    additionalProperties: false
+    properties:
+      changes:
+        type: array
+        x-annex-iv: "6"
+        x-requirement: required
+        description: "List of relevant changes. Empty array if none yet (new system)."
+        items:
+          type: object
+          required: [date, description]
+          additionalProperties: false
+          properties:
+            date:
+              type: string
+              format: date
+            description:
+              type: string
+            impact:
+              type: string
+            compliance_maintained:
+              type: boolean
+
+  # ──────────────────────────────────────────────
+  # Section 7 — Standards and Specifications
+  # Annex IV(7)
+  # ──────────────────────────────────────────────
+  standards:
+    type: object
+    x-annex-iv: "7"
+    description: "Harmonised standards applied or alternative solutions adopted."
+    additionalProperties: false
+    properties:
+      harmonised_standards:
+        type: array
+        x-annex-iv: "7"
+        x-requirement: conditional
+        description: "Harmonised standards applied (with OJ references)."
+        items:
+          type: object
+          required: [reference, applied]
+          additionalProperties: false
+          properties:
+            reference:
+              type: string
+              description: "Standard reference as published in the Official Journal."
+            applied:
+              type: string
+              enum: [full, partial]
+            partial_description:
+              type: string
+              description: "Which parts were applied, if partial."
+      alternative_solutions:
+        type: string
+        x-annex-iv: "7"
+        x-requirement: conditional
+        description: "Solutions adopted to meet Chapter III, Section 2 if no harmonised standards applied."
+      other_standards:
+        type: array
+        x-annex-iv: "7"
+        x-requirement: recommended
+        description: "Other relevant standards and technical specifications applied."
+        items:
+          type: object
+          required: [reference]
+          additionalProperties: false
+          properties:
+            reference:
+              type: string
+            description:
+              type: string
+    anyOf:
+      - required: [harmonised_standards]
+      - required: [alternative_solutions]
+
+  # ──────────────────────────────────────────────
+  # Section 8 — EU Declaration of Conformity
+  # Annex IV(8) / Article 47
+  # ──────────────────────────────────────────────
+  declaration_of_conformity:
+    type: object
+    x-annex-iv: "8"
+    description: "Copy of the EU declaration of conformity per Article 47."
+    additionalProperties: false
+    properties:
+      file:
+        type: string
+        x-annex-iv: "8"
+        x-requirement: required
+        description: "File path to the EU declaration of conformity document."
+      provider_name:
+        type: string
+        description: "Provider name as stated in the declaration."
+      system_name:
+        type: string
+        description: "AI system name as stated in the declaration."
+      declaration_date:
+        type: string
+        format: date
+        description: "Date of the declaration."
+      notes:
+        type: string
+        description: "Additional notes about the declaration."
+    anyOf:
+      - required: [file]
+      - required: [provider_name, system_name, declaration_date]
+
+  # ──────────────────────────────────────────────
+  # Section 9 — Post-Market Monitoring
+  # Annex IV(9) / Article 72
+  # ──────────────────────────────────────────────
+  post_market_monitoring:
+    type: object
+    x-annex-iv: "9"
+    description: "Post-market monitoring system per Article 72."
+    required:
+      - evaluation_system
+      - monitoring_plan
+    additionalProperties: false
+    properties:
+      evaluation_system:
+        type: string
+        minLength: 10
+        x-annex-iv: "9"
+        x-requirement: required
+        description: "System for evaluating AI system performance in the post-market phase."
+      monitoring_plan:
+        type: string
+        minLength: 10
+        x-annex-iv: "9"
+        x-requirement: required
+        description: "Post-market monitoring plan per Article 72(3)."

@@ -1,0 +1,471 @@
+# Freudche — AI Therapy Assistant
+# Full Annex IV declaration for an AI-native therapy app.
+# High-risk under Annex III, Section 5(a): healthcare AI.
+
+actcheck:
+  schema_version: "1.0.0"
+  declaration_date: "2026-05-17"
+
+general_description:
+  intended_purpose: >
+    Freudche is an AI-powered therapy assistant that provides cognitive
+    behavioral therapy (CBT) techniques and mental health support through
+    conversational interaction. Intended for use by licensed therapists as
+    a supplementary tool during and between therapy sessions. Not a
+    standalone treatment and not intended for unsupervised patient use.
+  provider:
+    name: "Freudche B.V."
+    address: "Amsterdam, Netherlands"
+    contact: "compliance@freudche.com"
+  system_version: "2.1.0"
+  version_history: >
+    v1.0 (2025-03): Initial release with GPT-4 backend.
+    v2.0 (2025-11): Migrated to Gemini 2.0 Flash, added LangChain
+    orchestration, expanded CBT module library.
+    v2.1 (2026-05): Added risk monitoring dashboard, refined prompt
+    safety filters.
+
+  external_interactions:
+    description: >
+      Integrates with Google Gemini 2.0 Flash via API for language
+      generation. Uses LangChain for prompt orchestration and conversation
+      memory. Optionally integrates with EHR systems via HL7 FHIR for
+      session notes export.
+    software_interfaces:
+      - name: "Google Gemini 2.0 Flash API"
+        type: "LLM inference"
+        interaction: "HTTP REST API calls for response generation"
+      - name: "LangChain v0.3"
+        type: "Orchestration framework"
+        interaction: "Embedded library for prompt chains and memory"
+    ai_system_interfaces:
+      - name: "Sentiment analysis module (internal)"
+        interaction: "Classifies user emotional state per message to inform response strategy"
+
+  software_versions:
+    components:
+      - name: "freudche-core"
+        version: "2.1.0"
+      - name: "langchain"
+        version: "0.3.14"
+      - name: "google-generativeai"
+        version: "0.8.4"
+      - name: "freudche-sentiment"
+        version: "1.2.0"
+    update_requirements: >
+      Gemini API version pinned; updates require re-validation of safety
+      filter effectiveness. LangChain updates require regression testing
+      of prompt chains before deployment.
+
+  distribution_forms:
+    - form: saas
+      description: "Progressive web app accessible via browser (therapist dashboard)"
+    - form: api
+      description: "REST API for EHR integration partners"
+
+  target_hardware: >
+    Cloud-hosted on GCP (europe-west4, Netherlands). No on-device inference.
+    Client requirements: modern browser (Chrome 120+, Firefox 115+, Safari 17+).
+    Server: Cloud Run instances with 4 vCPU, 16GB RAM.
+
+  product_integration:
+    is_component_of_product: false
+
+  deployer_interface: >
+    Therapists access a dashboard showing: active patient sessions,
+    conversation summaries, flagged risk indicators, session scheduling.
+    Admin panel for clinic-level configuration including safety thresholds
+    and escalation protocols.
+
+  instructions_for_use: >
+    Deployer manual (120 pages) covers: system setup, patient onboarding,
+    interpreting AI suggestions, override procedures, emergency escalation
+    protocols, data retention configuration, GDPR data subject request
+    handling.
+
+development:
+  methods:
+    development_steps: >
+      1. Requirements gathered from 12 licensed CBT therapists across
+         3 practices. 2. Prompt engineering with Gemini 2.0 Flash using
+         CBT protocol libraries. 3. LangChain orchestration layer for
+         multi-turn conversation management. 4. Safety filter layer
+         (content filtering + crisis detection). 5. Clinical validation
+         with 3 therapy practices (N=150 patients, 6 months).
+    third_party_components:
+      - name: "Google Gemini 2.0 Flash"
+        type: pre_trained_model
+        usage: >
+          Used as-is for language generation. Not fine-tuned. Accessed
+          via API. System prompts constrain output to CBT techniques
+          and safety boundaries.
+      - name: "LangChain"
+        type: framework
+        usage: >
+          Orchestrates conversation flow, manages context window,
+          implements retrieval-augmented generation for CBT technique
+          lookup from internal knowledge base.
+      - name: "DistilBERT (HuggingFace)"
+        type: pre_trained_model
+        usage: >
+          Fine-tuned for sentiment classification on therapy-adjacent
+          conversation data. Embedded in freudche-sentiment module.
+
+  design_specifications:
+    general_logic: >
+      User sends message -> sentiment analysis -> crisis detection ->
+      context retrieval (CBT technique library) -> Gemini prompt
+      construction -> response generation -> safety filter -> response
+      delivery. Therapist can review and override at any point in the
+      pipeline.
+    algorithms: >
+      Language generation: Gemini 2.0 Flash (transformer-based LLM,
+      accessed via API). Sentiment analysis: fine-tuned DistilBERT
+      classifier (6 emotion categories). Crisis detection: dual-layer
+      system combining rule-based keyword matching with ML classifier.
+    key_design_choices:
+      - choice: "Use pre-trained LLM via API rather than fine-tuned model"
+        rationale: >
+          Fine-tuning on therapy data raises patient privacy concerns
+          and requires ongoing retraining. Prompt engineering with CBT
+          protocols achieves comparable quality while avoiding training
+          on sensitive data.
+        assumptions: >
+          Target users are licensed therapists who can evaluate AI
+          suggestions professionally. The system supplements, not
+          replaces, clinical judgment.
+      - choice: "Dual-layer crisis detection (rules + ML)"
+        rationale: >
+          Rule-based layer catches explicit crisis language with near-zero
+          false negatives. ML layer catches subtle indicators. Combined
+          approach minimizes missed crises.
+        assumptions: >
+          Users may express suicidal ideation or self-harm intent. False
+          positives (unnecessary escalation) are preferable to false
+          negatives (missed crisis).
+      - choice: "EU-only data residency (GCP europe-west4)"
+        rationale: >
+          Patient therapy data is special category data under GDPR Art. 9.
+          EU-only hosting eliminates transfer risk and simplifies DPIA.
+    target_persons_groups: >
+      Primary deployers: licensed therapists (psychologists, psychiatrists,
+      licensed counselors) in EU member states. Indirect subjects: their
+      patients (adults 18+). System not validated for use with minors.
+    classification_choices: >
+      High-risk under Annex III, Section 5(a): AI system intended to be
+      used in healthcare for assisting clinical decision-making regarding
+      mental health treatment.
+    optimization_targets: >
+      Optimized for: therapeutic relevance of responses (measured by
+      therapist ratings), safety (zero missed crisis indicators), and
+      session continuity (coherent multi-turn therapeutic dialogue).
+    parameter_relevance: >
+      Temperature: 0.3 (low for consistency in therapeutic context).
+      Max tokens: 500 per response (prevents overwhelming patients).
+      Context window: last 20 messages (sufficient for session coherence).
+    expected_output: >
+      Natural language therapeutic responses grounded in CBT techniques.
+      Responses include: empathetic acknowledgment, technique suggestion,
+      guided exercise prompt, or escalation alert.
+    output_quality: >
+      Therapist relevance rating: 4.2/5.0 average (N=150 sessions).
+      Crisis detection recall: 99.7%. Response coherence: 4.5/5.0.
+    compliance_tradeoffs: >
+      Chose higher false-positive rate for crisis detection (8%) to ensure
+      near-zero false negatives, accepting some unnecessary escalations
+      to protect patient safety per Article 9 risk management requirements.
+
+  architecture:
+    description: >
+      Three-tier architecture: React frontend (therapist dashboard) ->
+      FastAPI backend (orchestration) -> GCP Cloud Run (inference).
+      Backend orchestrates: LangChain agent (conversation management),
+      Gemini API (text generation), PostgreSQL (session storage), Redis
+      (conversation cache), DistilBERT microservice (sentiment analysis).
+      All components EU-hosted (GCP europe-west4, Netherlands).
+    computational_resources:
+      development: "GCP Vertex AI workbench, 4x T4 GPUs for sentiment model training"
+      training: "Sentiment model: 8 hours on single T4 GPU. LLM: no training (API-based)."
+      testing: "Automated test suite: ~2 hours on 8-core CI runner"
+      validation: "Clinical validation: 6 months, 3 practices, 150 patients"
+
+  data_requirements:
+    training_methodologies: >
+      Sentiment classifier fine-tuned using supervised learning on
+      therapy-adjacent conversation datasets. No patient data used
+      in training. Transfer learning from pre-trained DistilBERT.
+    training_datasets:
+      - name: "GoEmotions"
+        description: "58K Reddit comments labeled with 27 emotion categories, mapped to 6 therapy-relevant categories"
+        provenance: "Google Research, publicly available under Apache 2.0"
+        scope: "English-language emotional expression in text"
+        characteristics: "Skewed toward casual language; augmented with therapy vocabulary via synonym expansion"
+      - name: "Therapy Dialogue Corpus (synthetic)"
+        description: "5K synthetic therapy dialogue snippets generated and labeled by clinical psychologists"
+        provenance: "Created internally by Freudche clinical team"
+        scope: "CBT-style therapeutic conversation patterns"
+        characteristics: "Balanced across 6 emotion categories, reviewed by 2 clinical psychologists"
+    data_selection: >
+      Selected datasets with emotional content similar to therapy
+      conversations. Excluded datasets containing minors' data or
+      identifiable patient information.
+    labeling_procedures: >
+      GoEmotions: original labels from Google Research (3 raters per sample),
+      remapped to 6 categories. Synthetic corpus: labeled by 2 clinical
+      psychologists + 1 NLP researcher, inter-rater agreement kappa=0.82.
+    data_cleaning: >
+      Removed duplicates, near-duplicates (cosine similarity > 0.95),
+      entries with < 5 tokens. Outlier detection via isolation forest
+      on embedding space. PII scan using Presidio before training.
+
+  human_oversight:
+    assessment: >
+      Per Article 14: therapists maintain full decision authority. All AI
+      suggestions are presented as recommendations, never as directives.
+      Therapists can: (a) override any suggestion, (b) disable AI for
+      specific sessions, (c) halt the system via emergency stop button,
+      (d) review full conversation logs, (e) configure safety thresholds.
+    interpretability_measures: >
+      Per Article 13(3)(d): each AI response includes a confidence
+      indicator (low/medium/high) and the CBT technique category it
+      draws from. Dashboard shows: conversation sentiment trajectory,
+      technique usage distribution, and flagged risk indicators with
+      plain-language explanation of why the flag was raised.
+
+  predetermined_changes:
+    has_predetermined_changes: true
+    changes:
+      - description: "Gemini model version updates (within 2.x family)"
+        trigger: "Google deprecates current model version"
+        expected_impact: "Minor response style changes, latency may vary"
+      - description: "CBT technique library expansion"
+        trigger: "New validated CBT protocols published and reviewed by clinical board"
+        expected_impact: "Broader range of technique suggestions"
+      - description: "Sentiment model retraining"
+        trigger: "Quarterly bias audit reveals accuracy degradation > 2%"
+        expected_impact: "Improved sentiment classification accuracy"
+    performance_impact: >
+      Gemini updates: monitored via automated regression test suite (300
+      standardized prompts, performance must stay within 5% tolerance of
+      baseline). Technique library: reviewed by clinical advisory board
+      before deployment. Sentiment retraining: validated on held-out test
+      set before production deployment.
+    continuous_compliance: >
+      Automated regression pipeline runs on every model/library update.
+      Results logged and compared against baseline metrics. Significant
+      deviations (> 5% on any metric) trigger manual review before
+      deployment. All changes logged in lifecycle_changes section.
+
+  validation_and_testing:
+    procedures: >
+      Unit tests (prompt chain correctness), integration tests (end-to-end
+      conversation flows), safety tests (adversarial prompt injection,
+      crisis scenario coverage), clinical validation (therapist-rated
+      real sessions with informed consent).
+    test_data:
+      description: "300 standardized therapy conversation scenarios"
+      characteristics: >
+        Covers: anxiety (80), depression (70), stress (60), relationship
+        issues (40), grief (30), other (20). Includes 50 crisis scenarios,
+        30 adversarial prompts (jailbreak attempts, off-topic steering),
+        20 edge cases (multilingual input, ambiguous intent).
+    metrics:
+      accuracy: "Therapist relevance rating: 4.2/5.0 (target: >= 4.0)"
+      robustness: "Adversarial prompt resistance: 97% blocked. OCR/typo tolerance: 91%."
+      compliance_metrics: "Crisis detection recall: 99.7% (target: >= 99.5%)"
+      discrimination_assessment: >
+        Tested across 5 demographic proxies (age brackets, inferred gender
+        from name, language preference). No statistically significant
+        accuracy differences detected (chi-squared test, p > 0.05 for
+        all pairwise comparisons).
+    test_logs:
+      - file: "docs/test-reports/clinical-validation-2026-03.pdf"
+        date: "2026-03-15"
+        signed_by: "Dr. Anna van der Berg, Clinical Lead"
+      - file: "docs/test-reports/safety-audit-2026-04.pdf"
+        date: "2026-04-22"
+        signed_by: "Reza Mohammadi, Technical Lead"
+      - file: "docs/test-reports/bias-audit-2026-05.pdf"
+        date: "2026-05-01"
+        signed_by: "Dr. Maria Santos, Fairness Reviewer"
+    predetermined_change_tests: >
+      Regression test suite (300 prompts) runs automatically on every
+      model update. Sentiment model retrained versions validated on
+      held-out test set (N=800) before deployment.
+
+  cybersecurity_measures: >
+    TLS 1.3 for all communications. Data encrypted at rest (AES-256-GCM).
+    API authentication via OAuth 2.0 (therapist login) + API keys (EHR
+    integration). Rate limiting (100 req/min per user). Input sanitization
+    against prompt injection (allow-list approach). Dependency scanning
+    via Snyk (weekly). Penetration testing quarterly (external firm).
+    SBOM maintained via CycloneDX. Incident response plan documented.
+
+monitoring:
+  capabilities_and_limitations: >
+    Capable of: CBT-based conversational support, crisis indicator
+    detection, session summarization, sentiment tracking over time.
+    Not capable of: clinical diagnosis, medication recommendation,
+    treatment of severe psychiatric conditions (psychosis, active
+    mania), real-time voice or video interaction, treating minors.
+  accuracy_per_group:
+    - group: "Adults 18-35"
+      accuracy: "Relevance: 4.3/5.0, Crisis detection: 99.8%"
+    - group: "Adults 36-55"
+      accuracy: "Relevance: 4.1/5.0, Crisis detection: 99.7%"
+    - group: "Adults 56+"
+      accuracy: "Relevance: 4.0/5.0, Crisis detection: 99.5%"
+    - group: "English-speaking users"
+      accuracy: "Relevance: 4.3/5.0"
+    - group: "Dutch-speaking users"
+      accuracy: "Relevance: 3.9/5.0"
+  overall_expected_accuracy: >
+    Therapist relevance rating: 4.2/5.0 across all sessions. Crisis
+    detection recall: 99.7%. Response coherence: 4.5/5.0.
+  foreseeable_unintended_outcomes: >
+    Over-reliance by therapist on AI suggestions reducing independent
+    clinical judgment. Patient developing emotional attachment to AI
+    personality. Inappropriate responses to culturally specific distress
+    expressions. Delayed crisis response if system flags are ignored.
+  risk_sources:
+    health_and_safety: >
+      Missed crisis detection could delay emergency intervention.
+      Inappropriate therapeutic advice could worsen patient condition.
+      System downtime during active crisis conversation.
+    fundamental_rights: >
+      Patient privacy — conversation data is special category (health)
+      under GDPR Art. 9. Right to human decision-making in healthcare.
+      Right to explanation of AI-assisted decisions.
+    discrimination: >
+      Accuracy gap for Dutch-speaking users (3.9 vs 4.3 for English).
+      Potential bias in sentiment analysis for non-native speakers.
+      Cultural differences in emotional expression may affect
+      classification accuracy.
+  human_oversight_measures: >
+    Therapists maintain full authority over treatment decisions. AI
+    suggestions clearly labeled as non-binding recommendations.
+    Emergency stop button halts AI participation immediately.
+    Monthly clinical advisory board review of flagged conversations.
+    Quarterly bias audit on production data.
+  output_interpretation_measures: >
+    Confidence indicators (low/medium/high) on each response. CBT
+    technique category labels. Sentiment trajectory visualization
+    (line chart over session). Risk flag explanations in plain
+    language. Weekly summary reports for clinic administrators.
+  input_data_specifications: >
+    Text input: UTF-8 encoded, max 2000 characters per message.
+    Supported languages: English (primary), Dutch, German (beta).
+    Session context: up to 20 previous messages retained.
+    File uploads: not supported (text-only interaction).
+
+performance_metrics:
+  appropriateness_description: >
+    Therapist relevance rating (5-point Likert) chosen as primary metric
+    because clinical validity of AI therapy support can only be assessed
+    by qualified practitioners — automated metrics (BLEU, ROUGE) do not
+    capture therapeutic appropriateness. Crisis detection recall
+    prioritized over precision because missed crises pose immediate
+    safety risks; Type II errors are categorically more dangerous than
+    Type I in a mental health context. F1 score used for sentiment
+    classification as a balanced measure given uneven emotion category
+    distribution. Discrimination assessment uses demographic parity
+    difference because equal treatment across demographic groups is both
+    legally required under the AI Act and clinically essential.
+
+risk_management:
+  system_description: >
+    Continuous risk management process covering the full lifecycle from
+    design through post-market monitoring. Reviewed quarterly by clinical
+    advisory board (3 licensed therapists) and technical team. Aligned
+    with ISO/IEC 23894:2023 (AI risk management guidance).
+  risk_identification: >
+    Risks identified through: STRIDE threat modelling, clinical
+    consultation (12 therapists, 3 practices), regulatory analysis of
+    AI Act requirements, user research with 50 therapists, adversarial
+    red-teaming of the AI system, review of mental health AI incident
+    reports from peer organizations.
+  risk_estimation: >
+    Each risk scored on likelihood (1-5) and severity (1-5), yielding
+    a composite score (1-25). Risks with score >= 15 classified as
+    critical. Severity weighting emphasizes patient safety outcomes.
+  risk_evaluation: >
+    10 critical risks identified, 23 moderate, 8 low. All critical
+    risks have active mitigation measures. Risk register maintained
+    in internal compliance system with quarterly review cycle.
+  risk_mitigation_measures: >
+    Crisis detection dual-layer system (rules + ML). Content safety
+    filters with allow-list approach. Therapist override and emergency
+    stop. Rate limiting and input validation. EU-only data residency.
+    Regular penetration testing. Clinical advisory board governance.
+    Patient consent and transparency measures.
+  residual_risks: >
+    Residual risk of missed crisis in novel expression patterns
+    (estimated < 0.3%, based on adversarial testing). Residual risk
+    of cultural bias in sentiment analysis for underrepresented
+    language patterns (mitigated by quarterly bias audits and
+    planned expansion of training data).
+  lifecycle_process: >
+    Risk register reviewed quarterly by clinical advisory board.
+    Post-market incident reports trigger immediate risk re-assessment.
+    Annual comprehensive risk review aligned with Article 9(2).
+    New model versions undergo full risk assessment before deployment.
+
+lifecycle_changes:
+  changes:
+    - date: "2025-11-15"
+      description: "Migrated LLM backend from GPT-4 to Gemini 2.0 Flash"
+      impact: "Response style changed; latency improved 40%; cost reduced 60%"
+      compliance_maintained: true
+    - date: "2026-03-01"
+      description: "Added sentiment trajectory visualization to therapist dashboard"
+      impact: "Enhanced therapist interpretability of patient emotional patterns"
+      compliance_maintained: true
+    - date: "2026-05-10"
+      description: "Updated crisis detection rules for Dutch-language patterns"
+      impact: "Dutch crisis detection recall improved from 98.9% to 99.5%"
+      compliance_maintained: true
+
+standards:
+  harmonised_standards: []
+  alternative_solutions: >
+    No harmonised standards for the AI Act published as of May 2026.
+    Compliance achieved through alignment with: ISO/IEC 42001:2023
+    (AI management system), ISO/IEC 23894:2023 (AI risk management),
+    ISO 13485:2016 (medical device QMS, applied by analogy for
+    healthcare AI), and internal quality processes documented in
+    the quality management system per Article 17.
+  other_standards:
+    - reference: "ISO/IEC 42001:2023"
+      description: "AI management system — organizational governance framework"
+    - reference: "ISO/IEC 23894:2023"
+      description: "AI risk management guidance"
+    - reference: "ISO 13485:2016"
+      description: "Medical device QMS (applied by analogy)"
+    - reference: "OWASP AI Security Top 10 v1.0"
+      description: "AI-specific security threat mitigation"
+    - reference: "IEEE 7010-2020"
+      description: "Well-being impact assessment for AI"
+
+declaration_of_conformity:
+  file: "docs/eu-declaration-of-conformity-2026-05.pdf"
+  provider_name: "Freudche B.V."
+  system_name: "Freudche AI Therapy Assistant"
+  declaration_date: "2026-05-17"
+
+post_market_monitoring:
+  evaluation_system: >
+    Production monitoring includes: response latency tracking (p95 < 3s),
+    error rate monitoring (target < 0.1%), crisis detection accuracy
+    validated against therapist confirmations (weekly reconciliation),
+    user satisfaction surveys (monthly NPS), therapist feedback
+    collection (per-session rating), sentiment model drift detection
+    (weekly embedding distance check).
+  monitoring_plan: >
+    Per Article 72(3): Continuous automated monitoring of key performance
+    metrics with alerting (PagerDuty). Monthly aggregate analysis report
+    to clinical advisory board. Quarterly clinical review board meeting
+    with bias audit results. Semi-annual external bias audit on
+    production data by independent reviewer. Annual comprehensive
+    performance review with updated risk assessment. Incident reporting
+    per Article 73 within 15 days of serious incident awareness.
+    All monitoring data retained for 10 years per Article 18.

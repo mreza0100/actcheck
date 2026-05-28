@@ -1,0 +1,267 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# actcheck — EU AI Act Annex IV technical-documentation template
+#
+# This is the canonical, fillable declaration for the technical documentation
+# required by Annex IV of Regulation (EU) 2024/1689 (the EU AI Act), referenced
+# from Article 11(1).
+#
+# Authoritative source (anchored to EUR-Lex, not a third-party mirror):
+#   https://eur-lex.europa.eu/eli/reg/2024/1689/oj#anx_IV
+#
+# HOW TO USE
+#   1. Copy this file to e.g. `annex-iv.yaml` in your project.
+#   2. Replace every  FILL: …  placeholder with real, specific content.
+#   3. Run `actcheck validate annex-iv.yaml`. It checks STRUCTURE and
+#      COMPLETENESS against the regulation — it does not (and cannot) judge legal
+#      conformity. You remain responsible for the truth of what you declare,
+#      exactly as you are for the code you write.
+#
+# CONVENTIONS — every field below is annotated with:
+#   §X(y)        the exact Annex IV point it satisfies
+#   [REQUIRED]   must be present and meaningful (empty/placeholder text fails)
+#   [CONDITIONAL] required only when the stated condition applies — otherwise omit
+#   [RECOMMENDED] not enforced, but reviewers and auditors expect it
+#
+# WHY THIS TEMPLATE IS DIFFERENT
+#   Faithful to all NINE Annex IV points (not collapsed to 7), in English, with a
+#   per-field regulation citation and requirement level. A declaration full of
+#   placeholder prose does NOT pass — completeness is enforced field by field.
+# ─────────────────────────────────────────────────────────────────────────────
+
+# === Declaration metadata ====================================================
+actcheck:
+  schema_version: "1.0.0"        # [REQUIRED] actcheck schema this targets (semver)
+  declaration_date: "2026-01-01" # [RECOMMENDED] date created / last updated (YYYY-MM-DD)
+  tool_version: ""               # [RECOMMENDED] actcheck CLI version used
+
+# === 1. General description of the AI system =================================
+# Annex IV §1
+general_description:
+  # §1(a) [REQUIRED] What the system is for. Be concrete: the function, the
+  # context of use, and the decision it informs. ≥10 chars; "AI tool" is not enough.
+  intended_purpose: "FILL: the system's intended purpose and context of use."
+
+  # §1(a) [REQUIRED] The provider (the legal person placing the system on the market).
+  provider:
+    name: "FILL: legal name of the provider"   # [REQUIRED]
+    address: ""                                # [RECOMMENDED] registered address
+    contact: ""                                # [RECOMMENDED] email or phone
+
+  # §1(a) [REQUIRED] Version of THIS system, reflecting its relation to prior versions.
+  system_version: "FILL: e.g. 2.3.0"
+  # §1(a) [RECOMMENDED] Narrative of how this version relates to previous ones.
+  version_history: ""
+
+  # §1(b) [CONDITIONAL] Keep ONLY if the system interacts with external hardware,
+  # software, or other AI systems not part of it. Otherwise delete this block.
+  external_interactions:
+    description: "FILL: how it interacts with external hw/sw/other AI systems."
+    hardware_interfaces: []     # list of strings, e.g. ["barcode scanner (USB)"]
+    software_interfaces:        # list of {name, type, interaction}
+      - name: "FILL: e.g. CRM API"
+        type: "FILL: e.g. REST service"
+        interaction: "FILL: what data flows and when"
+    ai_system_interfaces:       # list of {name, interaction}
+      - name: "FILL: upstream/downstream AI system"
+        interaction: "FILL: how they interact"
+
+  # §1(c) [REQUIRED] Versions of relevant software/firmware and update requirements.
+  software_versions:
+    components:                 # [REQUIRED] at least one component
+      - name: "FILL: component name"
+        version: "FILL: version"
+    update_requirements: ""     # requirements related to version updates
+
+  # §1(d) [REQUIRED] Every form in which the system is placed on the market / put
+  # into service. At least one. `form` ∈
+  # [software_package, embedded_hardware, download, api, saas, other].
+  distribution_forms:
+    - form: api
+      description: "FILL: describe this distribution form"
+
+  # §1(e) [REQUIRED] The hardware the system is intended to run on. ≥10 chars.
+  target_hardware: "FILL: CPU/GPU/RAM/OS or target device."
+
+  # §1(f) [CONDITIONAL] Required where the system is a component of products.
+  product_integration:
+    is_component_of_product: false   # [REQUIRED] true/false
+    # If true, the four fields below become REQUIRED:
+    # product_photos: ["path/to/photo.png"]   # external features
+    # external_features: "FILL"
+    # marking: "FILL: markings on the product"
+    # internal_layout: "FILL: internal layout of the product"
+
+  # §1(g) [REQUIRED] Basic description of the user interface provided to the deployer. ≥10 chars.
+  deployer_interface: "FILL: what the deployer sees and controls."
+
+  # §1(h) [CONDITIONAL] Instructions for use for the deployer, where applicable.
+  instructions_for_use: ""
+
+# === 2. Detailed description of elements & development process ===============
+# Annex IV §2
+development:
+  # §2(a) [REQUIRED] Methods and steps performed for development.
+  methods:
+    development_steps: "FILL: how the system was developed (≥10 chars)."
+    # [RECOMMENDED] Third-party pre-trained models/tools and how they were used.
+    # type ∈ [pre_trained_model, tool, library, framework, dataset, other]
+    third_party_components:
+      - name: "FILL: e.g. BERT-base"
+        type: pre_trained_model
+        usage: "FILL: how it was used, integrated, or modified"
+
+  # §2(b) [REQUIRED] Design specifications. All sub-fields below are required
+  # except the three marked [RECOMMENDED].
+  design_specifications:
+    general_logic: "FILL: the general logic of the system (≥10 chars)."
+    algorithms: "FILL: the algorithms used (≥10 chars)."
+    key_design_choices:                       # [REQUIRED] at least one
+      - choice: "FILL: a key design choice"
+        rationale: "FILL: why this choice"
+        assumptions: ""                       # [RECOMMENDED]
+    target_persons_groups: "FILL: persons/groups the system is used on or for."
+    classification_choices: ""                # [RECOMMENDED] main classification choices
+    optimization_targets: "FILL: what the system optimises for."
+    parameter_relevance: ""                   # [RECOMMENDED] relevance of parameters
+    expected_output: "FILL: the expected output."
+    output_quality: "FILL: expected output quality."
+    compliance_tradeoffs: ""                  # [RECOMMENDED] trade-offs re Chapter III §2
+
+  # §2(c) [REQUIRED] System architecture and computational resources.
+  architecture:
+    description: "FILL: how components build on/feed into each other (≥10 chars)."
+    component_diagram: ""                     # [RECOMMENDED] path to architecture diagram
+    computational_resources:                  # [RECOMMENDED]
+      development: ""
+      training: ""
+      testing: ""
+      validation: ""
+
+  # §2(d) [CONDITIONAL] Data requirements & training data — where relevant
+  # (e.g. systems trained on data). Delete if not applicable.
+  data_requirements:
+    training_methodologies: "FILL: training methodologies and techniques."
+    training_datasets:
+      - name: "FILL: dataset name"
+        description: "FILL: what it contains"
+        provenance: "FILL: where it came from"
+        scope: ""
+        characteristics: ""
+    data_selection: "FILL: how data was obtained and selected."
+    labeling_procedures: ""
+    data_cleaning: ""
+
+  # §2(e) [REQUIRED] Human-oversight assessment per Article 14.
+  human_oversight:
+    assessment: "FILL: human-oversight measures needed per Article 14 (≥10 chars)."
+    interpretability_measures: "FILL: measures to help deployers interpret outputs (Art 13(3)(d))."
+
+  # §2(f) [CONDITIONAL] Pre-determined changes — where applicable. Delete if none.
+  predetermined_changes:
+    has_predetermined_changes: false          # [REQUIRED] true/false
+    # If true, `changes` and `continuous_compliance` below become REQUIRED:
+    # changes:
+    #   - description: "FILL"
+    #     trigger: "FILL"
+    #     expected_impact: "FILL"
+    # performance_impact: "FILL"
+    # continuous_compliance: "FILL: technical solutions ensuring ongoing Chapter III §2 compliance"
+
+  # §2(g) [REQUIRED] Validation & testing procedures, data, metrics, and logs.
+  validation_and_testing:
+    procedures: "FILL: validation and testing procedures used (≥10 chars)."
+    test_data:
+      description: "FILL: the validation/testing data used (≥1 char)."  # [REQUIRED]
+      characteristics: ""                     # [RECOMMENDED]
+    metrics:
+      accuracy: "FILL: metrics used to measure accuracy."        # [REQUIRED]
+      robustness: "FILL: metrics used to measure robustness."    # [REQUIRED]
+      compliance_metrics: ""                  # [RECOMMENDED] Chapter III §2 metrics
+      discrimination_assessment: ""           # [RECOMMENDED] potentially discriminatory impacts
+    # [RECOMMENDED] Dated, signed test reports.
+    test_logs:
+      - file: "path/to/test-report.pdf"
+        date: "2026-01-01"
+        signed_by: "FILL: responsible person"
+    predetermined_change_tests: ""            # [CONDITIONAL] testing re §2(f) changes
+
+  # §2(h) [REQUIRED] Cybersecurity measures put in place. ≥10 chars.
+  cybersecurity_measures: "FILL: cybersecurity measures (auth, transport, input limits…)."
+
+# === 3. Monitoring, functioning and control =================================
+# Annex IV §3 — all fields below [REQUIRED] except input_data_specifications.
+monitoring:
+  capabilities_and_limitations: "FILL: capabilities and limitations in performance."
+  accuracy_per_group:                         # [REQUIRED] at least one group
+    - group: "FILL: a relevant person/group"
+      accuracy: "FILL: accuracy for that group"
+  overall_expected_accuracy: "FILL: overall expected accuracy vs intended purpose."
+  foreseeable_unintended_outcomes: "FILL: foreseeable unintended outcomes."
+  risk_sources:                               # [REQUIRED] all three sub-fields
+    health_and_safety: "FILL: risks to health and safety (or 'none', with reason)."
+    fundamental_rights: "FILL: risks to fundamental rights."
+    discrimination: "FILL: risks of discrimination."
+  human_oversight_measures: "FILL: human-oversight measures per Article 14."
+  output_interpretation_measures: "FILL: technical measures helping deployers interpret outputs."
+  input_data_specifications: ""               # [CONDITIONAL] specs on input data, as appropriate
+
+# === 4. Appropriateness of performance metrics ==============================
+# Annex IV §4
+performance_metrics:
+  # [REQUIRED] WHY the chosen metrics fit THIS specific system. ≥20 chars.
+  # Don't restate the metrics — justify them against the intended purpose.
+  appropriateness_description: "FILL: why these metrics are appropriate for this specific system."
+
+# === 5. Risk management system (Article 9) ==================================
+# Annex IV §5
+risk_management:
+  system_description: "FILL: overall description of the risk-management system."   # [REQUIRED]
+  risk_identification: "FILL: how risks are identified and analysed."             # [REQUIRED]
+  risk_estimation: ""                          # [RECOMMENDED] likelihood and severity
+  risk_evaluation: "FILL: how risks are evaluated and prioritised."               # [REQUIRED]
+  risk_mitigation_measures: "FILL: mitigation and control measures adopted."      # [REQUIRED]
+  residual_risks: ""                           # [RECOMMENDED] risks remaining after mitigation
+  lifecycle_process: ""                        # [RECOMMENDED] how RM is maintained over the lifecycle
+
+# === 6. Relevant lifecycle changes ==========================================
+# Annex IV §6 — [REQUIRED] key. Use an empty list `[]` for a brand-new system.
+lifecycle_changes:
+  changes: []
+  # Example entry once changes occur:
+  # changes:
+  #   - date: "2026-03-01"
+  #     description: "FILL: what changed"
+  #     impact: "FILL: impact of the change"
+  #     compliance_maintained: true
+
+# === 7. Harmonised standards / alternative solutions ========================
+# Annex IV §7 — provide EITHER harmonised_standards OR alternative_solutions.
+standards:
+  # [CONDITIONAL] Harmonised standards applied, with Official Journal references.
+  # applied ∈ [full, partial]; give partial_description if partial.
+  # harmonised_standards:
+  #   - reference: "FILL: standard ref as published in the OJEU"
+  #     applied: full
+  #     partial_description: ""
+  # [CONDITIONAL] If no harmonised standards applied, describe the solutions
+  # adopted to meet Chapter III, Section 2.
+  alternative_solutions: "FILL: solutions adopted where no harmonised standards apply."
+  # [RECOMMENDED] Other relevant standards/specifications applied.
+  other_standards:
+    - reference: "FILL: e.g. ISO/IEC 42001:2023"
+      description: "FILL: how it was used (guidance / certified)"
+
+# === 8. EU declaration of conformity (Article 47) ===========================
+# Annex IV §8 — provide EITHER `file` OR (provider_name + system_name + declaration_date).
+declaration_of_conformity:
+  # file: "path/to/eu-declaration-of-conformity.pdf"   # [REQUIRED via this path]
+  provider_name: "FILL: provider name as in the declaration"
+  system_name: "FILL: system name as in the declaration"
+  declaration_date: "2026-01-01"
+  notes: ""
+
+# === 9. Post-market monitoring system (Article 72) ==========================
+# Annex IV §9 — both fields [REQUIRED].
+post_market_monitoring:
+  evaluation_system: "FILL: system for evaluating performance in the post-market phase."
+  monitoring_plan: "FILL: the post-market monitoring plan per Article 72(3)."
