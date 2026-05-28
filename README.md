@@ -29,13 +29,25 @@ Existing FOSS tools in the space fall short in characteristic ways:
 
 ## 30-second quickstart
 
-Run it without installing — straight from the [npm registry](https://www.npmjs.com/package/actcheck):
+Two commands, no install required — straight from the [npm registry](https://www.npmjs.com/package/actcheck):
 
 ```bash
-npx actcheck validate <your-declaration.yaml>
+npx actcheck init     # scaffold a .actcheck/ workspace with everything you need
+npx actcheck check    # validate .actcheck/annex-iv.yaml once you've filled it in
 ```
 
-Or install globally:
+`init` drops a `.actcheck/` folder in your project — your versioned Annex IV workspace:
+
+| File | What it is |
+| --- | --- |
+| `.actcheck/annex-iv.yaml` | **The form.** Fill this in — replace every `FILL:` marker. |
+| `.actcheck/schema.yaml`, `traceability.yaml` | The machine-readable spec and its clause-by-clause map to the regulation. |
+
+To draft it fast, run the bundled [`actcheck` skill](skills/actcheck/SKILL.md): `/actcheck fill` in Claude Code.
+
+Commit `.actcheck/` — it's the documentation a regulator would ask for.
+
+Or install globally, and validate an arbitrary file (handy in CI):
 
 ```bash
 npm install -g actcheck
@@ -53,7 +65,11 @@ npx actcheck validate schemas/annex-iv/v1/template.yaml
 # → Schema-valid — Structural coverage: 9 of 9 Annex IV sections present (100%)
 ```
 
-Copy `schemas/annex-iv/v1/template.yaml` into your project, replace every `FILL:` placeholder with real content, and run `actcheck validate <your-file.yaml>` in CI.
+### Let an LLM draft it for you
+
+Filling the form by hand from a codebase you already know is tedious. actcheck ships an [`actcheck` Claude Code skill](skills/actcheck/SKILL.md): run `/actcheck fill` and it drafts your declaration from the actual project, citing evidence and asking you to close any gaps rather than inventing facts. Run `/actcheck explain <field>` to see the regulatory requirement behind any field, quoted verbatim from the regulation.
+
+The skill is written to **flag what it can't find rather than invent it** — the skill drafts, `actcheck` validates, and you verify the truth before relying on it. Never the other way around.
 
 ### From source (for contributors)
 

@@ -45,6 +45,10 @@ properties:
     $ref: "#/$defs/product_harmonisation"
   simplified_documentation:
     $ref: "#/$defs/simplified_documentation"
+  # Regulatory framing block (Articles 5, 6, 18) — optional but strongly recommended.
+  # Not an Annex IV section; informs whether Annex IV applies and how long it is kept.
+  risk_classification:
+    $ref: "#/$defs/risk_classification"
 
 $defs:
   # ──────────────────────────────────────────────
@@ -1030,3 +1034,87 @@ $defs:
       required:
         - uses_simplified_route
         - organisation_size
+
+  # ──────────────────────────────────────────────
+  # Articles 5, 6, 18 — Risk classification framing
+  # ──────────────────────────────────────────────
+  risk_classification:
+    type: object
+    x-annex-iv: "art-5+art-6+art-18"
+    description: >
+      Risk classification per Article 6 (Annex III high-risk areas), Article 5
+      prohibited-practices screening, and Article 18 retention metadata.
+      NOT an Annex IV section — this is the regulatory framing that determines
+      whether and how Annex IV documentation applies.
+    required:
+      - risk_level
+    additionalProperties: false
+    properties:
+      risk_level:
+        type: string
+        enum: [unacceptable, high, limited, minimal]
+        x-annex-iv: "art-6"
+        x-requirement: required
+        description: "Risk classification per Articles 5, 6, 50, 52."
+      use_case_tags:
+        type: array
+        x-annex-iv: "art-6(2)/annex-iii"
+        x-requirement: conditional
+        description: >
+          Annex III high-risk area tags applicable to the system's intended
+          purpose. If any tag is present, risk_level MUST be 'high'.
+        items:
+          type: string
+          enum:
+            - biometrics
+            - critical_infrastructure
+            - education_vocational_training
+            - employment_workers_management
+            - essential_private_public_services
+            - law_enforcement
+            - migration_asylum_border_control
+            - administration_of_justice_democratic_processes
+      prohibited_practices_claimed:
+        type: array
+        x-annex-iv: "art-5"
+        x-requirement: required
+        description: >
+          Article 5 prohibited practices the provider acknowledges this system
+          engages in. MUST be empty for a lawful system; any value is a HARD FAIL.
+        items:
+          type: string
+          enum:
+            - subliminal_manipulation
+            - exploitation_of_vulnerabilities
+            - social_scoring
+            - predictive_policing_individual
+            - untargeted_facial_scraping
+            - emotion_recognition_workplace_education
+            - biometric_categorisation_sensitive
+            - real_time_remote_biometric_identification_public_spaces
+      placed_on_market:
+        type: string
+        format: date
+        x-annex-iv: "art-18"
+        x-requirement: conditional
+        description: "Date the system was first placed on the market or put into service."
+      retention_until:
+        type: string
+        format: date
+        x-annex-iv: "art-18(1)"
+        x-requirement: conditional
+        description: >
+          End of the 10-year retention obligation per Article 18(1). May be
+          omitted if placed_on_market is set; actcheck computes and displays it.
+    # Annex III tags imply high-risk classification. The `required` is what
+    # forces the `if` to be considered — properties alone is vacuously true on
+    # an absent key, which would (wrongly) trigger `then` for every declaration.
+    if:
+      required: [use_case_tags]
+      properties:
+        use_case_tags:
+          minItems: 1
+    then:
+      properties:
+        risk_level:
+          const: high

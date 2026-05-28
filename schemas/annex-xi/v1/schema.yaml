@@ -1,0 +1,261 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://actcheck.dev/schemas/annex-xi/v1/schema.yaml"
+title: "EU AI Act Annex XI — GPAI Technical Documentation"
+description: >
+  Machine-readable schema for general-purpose AI model technical documentation
+  required by Annex XI of Regulation (EU) 2024/1689 (EU AI Act).
+  Providers of GPAI models must keep this documentation under Article 53;
+  providers of GPAI models with systemic risk additionally satisfy Section 2.
+
+type: object
+required:
+  - actcheck
+  - general_description
+  - detailed_description
+additionalProperties: false
+
+properties:
+  actcheck:
+    $ref: "#/$defs/actcheck_meta"
+  general_description:
+    $ref: "#/$defs/general_description"
+  detailed_description:
+    $ref: "#/$defs/detailed_description"
+  systemic_risk:
+    $ref: "#/$defs/systemic_risk_block"
+
+$defs:
+  actcheck_meta:
+    type: object
+    description: "actcheck declaration metadata."
+    required:
+      - schema_version
+      - profile
+    additionalProperties: false
+    properties:
+      schema_version:
+        type: string
+        pattern: "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+      profile:
+        type: string
+        const: annex-xi
+        description: "Declaration profile selector — must be 'annex-xi' for this schema."
+      declaration_date:
+        type: string
+        format: date
+      tool_version:
+        type: string
+
+  # ─────────────────────────────────────────
+  # Annex XI Section 1.1 — General description
+  # ─────────────────────────────────────────
+  general_description:
+    type: object
+    x-annex-xi: "1.1"
+    description: "General description of the general-purpose AI model."
+    required:
+      - intended_tasks
+      - integration_types
+      - acceptable_use_policy
+      - release_date
+      - distribution_methods
+      - architecture
+      - parameter_count
+      - modalities
+      - input_format
+      - output_format
+      - licence
+    additionalProperties: false
+    properties:
+      intended_tasks:
+        type: string
+        minLength: 10
+        x-annex-xi: "1.1(a)"
+        description: "Tasks the model is intended to perform."
+      integration_types:
+        type: string
+        minLength: 10
+        x-annex-xi: "1.1(a)"
+        description: "Type and nature of AI systems the model can be integrated into."
+      acceptable_use_policy:
+        type: string
+        minLength: 10
+        x-annex-xi: "1.1(b)"
+        description: "Acceptable use policies applicable to the model."
+      release_date:
+        type: string
+        format: date
+        x-annex-xi: "1.1(c)"
+        description: "Date of release."
+      distribution_methods:
+        type: string
+        minLength: 10
+        x-annex-xi: "1.1(c)"
+        description: "Methods of distribution (e.g. weights, API, SaaS)."
+      architecture:
+        type: string
+        minLength: 10
+        x-annex-xi: "1.1(d)"
+        description: "Architecture of the model."
+      parameter_count:
+        type: integer
+        minimum: 1
+        x-annex-xi: "1.1(d)"
+        description: "Number of parameters in the model."
+      modalities:
+        type: array
+        minItems: 1
+        x-annex-xi: "1.1(e)"
+        description: "Input/output modalities supported by the model."
+        items:
+          type: string
+          enum: [text, image, audio, video, code, tabular, multimodal, other]
+      input_format:
+        type: string
+        minLength: 1
+        x-annex-xi: "1.1(e)"
+        description: "Format of inputs."
+      output_format:
+        type: string
+        minLength: 1
+        x-annex-xi: "1.1(e)"
+        description: "Format of outputs."
+      licence:
+        type: string
+        minLength: 1
+        x-annex-xi: "1.1(f)"
+        description: "Licence under which the model is released."
+
+  # ─────────────────────────────────────────
+  # Annex XI Section 1.2 — Detailed description
+  # ─────────────────────────────────────────
+  detailed_description:
+    type: object
+    x-annex-xi: "1.2"
+    description: "Detailed description of the model and its development process."
+    required:
+      - integration_means
+      - design_specifications
+      - training_data
+      - computational_resources
+      - energy_consumption
+    additionalProperties: false
+    properties:
+      integration_means:
+        type: string
+        minLength: 10
+        x-annex-xi: "1.2(a)"
+        description: "Technical means required for integration of the GPAI model into AI systems."
+      design_specifications:
+        type: object
+        x-annex-xi: "1.2(b)"
+        required:
+          - training_methodology
+          - key_design_choices
+          - optimization_targets
+          - parameter_relevance
+        additionalProperties: false
+        properties:
+          training_methodology:
+            type: string
+            minLength: 10
+          key_design_choices:
+            type: string
+            minLength: 10
+          optimization_targets:
+            type: string
+            minLength: 10
+          parameter_relevance:
+            type: string
+            minLength: 10
+      training_data:
+        type: object
+        x-annex-xi: "1.2(c)"
+        required:
+          - provenance
+          - scope
+          - characteristics
+        additionalProperties: false
+        properties:
+          provenance:
+            type: string
+            minLength: 10
+            description: "Provenance of training data."
+          scope:
+            type: string
+            minLength: 10
+            description: "Scope of the data."
+          characteristics:
+            type: string
+            minLength: 10
+            description: "Main characteristics of the data."
+          obtaining_and_selection:
+            type: string
+          cleaning_methodology:
+            type: string
+          bias_detection:
+            type: string
+            description: "Measures to detect unsuitability of data sources and biases."
+      computational_resources:
+        type: object
+        x-annex-xi: "1.2(d)"
+        required:
+          - flops
+          - training_time
+        additionalProperties: false
+        properties:
+          flops:
+            type: string
+            description: "Number of FLOPs used for training."
+          training_time:
+            type: string
+            description: "Total training duration."
+          other_details:
+            type: string
+      energy_consumption:
+        type: string
+        minLength: 10
+        x-annex-xi: "1.2(e)"
+        description: "Known or estimated energy consumption of training."
+
+  # ─────────────────────────────────────────
+  # Annex XI Section 2 — Additional documentation for systemic-risk models
+  # ─────────────────────────────────────────
+  systemic_risk_block:
+    type: object
+    x-annex-xi: "2"
+    description: "Additional documentation for GPAI models with systemic risk under Article 51."
+    required:
+      - has_systemic_risk
+    additionalProperties: false
+    properties:
+      has_systemic_risk:
+        type: boolean
+        x-annex-xi: "2"
+        description: "Whether the model is classified as having systemic risk per Article 51."
+      evaluation_strategies:
+        type: string
+        x-annex-xi: "2(1)"
+        description: >
+          Detailed description of evaluation strategies, including evaluation
+          results, criteria, metrics, and methodology for identifying limitations.
+      adversarial_testing:
+        type: string
+        x-annex-xi: "2(2)"
+        description: >
+          Description of internal/external adversarial testing measures
+          (e.g. red teaming), model adaptations, alignment, fine-tuning.
+      system_architecture_integration:
+        type: string
+        x-annex-xi: "2(3)"
+        description: "How software components build into / feed into the overall processing."
+    if:
+      required: [has_systemic_risk]
+      properties:
+        has_systemic_risk:
+          const: true
+    then:
+      required:
+        - has_systemic_risk
+        - evaluation_strategies
+        - adversarial_testing

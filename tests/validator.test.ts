@@ -3,9 +3,10 @@ import { writeFileSync, unlinkSync, mkdirSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import yaml from "js-yaml";
 import { describe, it, expect, afterEach } from "vitest";
-import { validate, coverage, loadSchema } from "../src/validator.js";
+import { validate, coverage, loadSchema, findPlaceholders } from "../src/validator.js";
 
 const EXAMPLES_DIR = resolve("schemas/annex-iv/v1/examples");
+const TEMPLATE = resolve("schemas/annex-iv/v1/template.yaml");
 const tempFiles: string[] = [];
 
 function writeTempYaml(content: string): string {
@@ -20,6 +21,40 @@ afterEach(() => {
     try { unlinkSync(f); } catch { /* ignore */ }
   }
   tempFiles.length = 0;
+});
+
+// The false-confidence guard: a structurally-valid template is still full of
+// unreplaced FILL: markers and must NOT read as a finished, compliant document.
+describe("findPlaceholders", () => {
+  it("flags every unreplaced FILL: marker in the template", () => {
+    const hits = findPlaceholders(TEMPLATE);
+    expect(hits.length).toBeGreaterThan(0);
+    expect(hits).toContain("general_description.intended_purpose");
+  });
+
+  it("returns dotted paths that descend into nested objects and arrays", () => {
+    const path = writeTempYaml(
+      "general_description:\n" +
+        "  intended_purpose: \"FILL: purpose\"\n" +
+        "  software_versions:\n" +
+        "    components:\n" +
+        "      - name: \"FILL: component\"\n" +
+        "        version: \"1.0.0\"\n",
+    );
+    const hits = findPlaceholders(path);
+    expect(hits).toContain("general_description.intended_purpose");
+    expect(hits).toContain(
+      "general_description.software_versions.components.0.name",
+    );
+    expect(hits).not.toContain(
+      "general_description.software_versions.components.0.version",
+    );
+  });
+
+  it("returns an empty array for a fully-filled declaration", () => {
+    expect(findPlaceholders(resolve(EXAMPLES_DIR, "freudche.yaml"))).toEqual([]);
+    expect(findPlaceholders(resolve(EXAMPLES_DIR, "minimal.yaml"))).toEqual([]);
+  });
 });
 
 describe("loadSchema", () => {
@@ -271,5 +306,62 @@ general_description:
     expect(cov.total).toBe(9);
     expect(cov.details["Section 1 (general_description)"]).toBe(true);
     expect(cov.details["Section 2 (development)"]).toBe(false);
+  });
+
+  it("does not count Article 11 extension sections toward Annex IV coverage", () => {
+    // freudche.yaml carries simplified_documentation + product_harmonisation;
+    // coverage must still be 9 Annex IV sections, not inflated by them.
+    const cov = coverage(resolve(EXAMPLES_DIR, "freudche.yaml"));
+    expect(cov.total).toBe(9);
+    expect(cov.covered).toBe(9);
+  });
+});
+
+// Article 11 framing of Annex IV: optional sections that must (a) be accepted
+// when well-formed and (b) enforce their conditionals when activated.
+describe("Article 11 extensions", () => {
+  function minimalDoc(): Record<string, any> {
+    return yaml.load(
+      readFileSync(resolve(EXAMPLES_DIR, "minimal.yaml"), "utf-8"),
+    ) as Record<string, any>;
+  }
+
+  it("accepts a non-applicable product_harmonisation block", () => {
+    const doc = minimalDoc();
+    doc.product_harmonisation = { under_annex_i_section_a: false };
+    const result = validate(writeTempYaml(yaml.dump(doc)));
+    expect(result.valid).toBe(true);
+  });
+
+  it("requires applicable_legislation + additional_documentation when under Annex I Section A", () => {
+    const doc = minimalDoc();
+    doc.product_harmonisation = { under_annex_i_section_a: true };
+    const result = validate(writeTempYaml(yaml.dump(doc)));
+    expect(result.valid).toBe(false);
+    const missing = result.errors.find(
+      (e) => e.message.includes("applicable_legislation") && e.message.includes("required"),
+    );
+    expect(missing).toBeDefined();
+  });
+
+  it("requires organisation_size when the SME simplified route is elected", () => {
+    const doc = minimalDoc();
+    doc.simplified_documentation = { uses_simplified_route: true };
+    const result = validate(writeTempYaml(yaml.dump(doc)));
+    expect(result.valid).toBe(false);
+    const missing = result.errors.find(
+      (e) => e.message.includes("organisation_size") && e.message.includes("required"),
+    );
+    expect(missing).toBeDefined();
+  });
+
+  it("rejects an unknown organisation_size value", () => {
+    const doc = minimalDoc();
+    doc.simplified_documentation = {
+      uses_simplified_route: true,
+      organisation_size: "enterprise",
+    };
+    const result = validate(writeTempYaml(yaml.dump(doc)));
+    expect(result.valid).toBe(false);
   });
 });
