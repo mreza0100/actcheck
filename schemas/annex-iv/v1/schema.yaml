@@ -40,6 +40,11 @@ properties:
     $ref: "#/$defs/declaration_of_conformity"
   post_market_monitoring:
     $ref: "#/$defs/post_market_monitoring"
+  # Article 11 framing of Annex IV (not Annex IV sections themselves; optional).
+  product_harmonisation:
+    $ref: "#/$defs/product_harmonisation"
+  simplified_documentation:
+    $ref: "#/$defs/simplified_documentation"
 
 $defs:
   # ──────────────────────────────────────────────
@@ -911,3 +916,117 @@ $defs:
         x-annex-iv: "9"
         x-requirement: required
         description: "Post-market monitoring plan per Article 72(3)."
+
+  # ──────────────────────────────────────────────
+  # Article 11(2) — Product-bundle technical documentation
+  # Single set incl. Annex I Section A sectoral legislation
+  # ──────────────────────────────────────────────
+  product_harmonisation:
+    type: object
+    x-annex-iv: "art-11(2)"
+    description: >
+      Single technical documentation set per Article 11(2). Where the high-risk
+      AI system relates to a product covered by the Union harmonisation
+      legislation listed in Annex I, Section A, the documentation must also
+      contain the information required under those legal acts. Optional section;
+      applies only to product-embedded high-risk systems.
+    required:
+      - under_annex_i_section_a
+    additionalProperties: false
+    properties:
+      under_annex_i_section_a:
+        type: boolean
+        x-annex-iv: "art-11(2)"
+        x-requirement: conditional
+        description: "Whether the AI system relates to a product covered by Annex I, Section A harmonisation legislation."
+      applicable_legislation:
+        type: array
+        x-annex-iv: "art-11(2)"
+        x-requirement: conditional
+        description: "The Annex I, Section A legal act(s) the product falls under."
+        items:
+          type: object
+          required: [reference]
+          additionalProperties: false
+          properties:
+            reference:
+              type: string
+              description: "The legal act (e.g. 'Regulation (EU) 2017/745 — Medical Devices')."
+            scope:
+              type: string
+              description: "How the act applies to this system."
+      additional_documentation:
+        type: array
+        x-annex-iv: "art-11(2)"
+        x-requirement: conditional
+        description: "Documentation required under those legal acts, integrated into this single set per Article 11(2)."
+        items:
+          type: object
+          required: [requirement]
+          additionalProperties: false
+          properties:
+            requirement:
+              type: string
+              description: "The documentation element required by the sectoral act."
+            location:
+              type: string
+              description: "Where this element is provided (file path or section reference)."
+    # Conditional: if the system is under Annex I Section A legislation,
+    # the applicable acts and the merged documentation must be declared.
+    if:
+      properties:
+        under_annex_i_section_a:
+          const: true
+    then:
+      required:
+        - under_annex_i_section_a
+        - applicable_legislation
+        - additional_documentation
+
+  # ──────────────────────────────────────────────
+  # Article 11(1) — SME / start-up simplified route
+  # ──────────────────────────────────────────────
+  simplified_documentation:
+    type: object
+    x-annex-iv: "art-11(1)"
+    description: >
+      SME/start-up simplified technical documentation route per Article 11(1).
+      SMEs, including start-ups, may provide the Annex IV elements in a simplified
+      manner using the Commission's simplified form. Declaring the route here
+      records eligibility and intent; it does NOT relax actcheck's structural
+      checks (the Commission form is not yet published as a field profile).
+      Optional section.
+    required:
+      - uses_simplified_route
+    additionalProperties: false
+    properties:
+      uses_simplified_route:
+        type: boolean
+        x-annex-iv: "art-11(1)"
+        x-requirement: conditional
+        description: "Whether the provider uses the SME simplified documentation route."
+      organisation_size:
+        type: string
+        enum: [micro, small, medium, startup]
+        x-annex-iv: "art-11(1)"
+        x-requirement: conditional
+        description: "SME category establishing eligibility for the simplified route."
+      commission_form_reference:
+        type: string
+        x-annex-iv: "art-11(1)"
+        x-requirement: recommended
+        description: "Reference to the Commission simplified technical documentation form used (once published)."
+      justification:
+        type: string
+        x-annex-iv: "art-11(1)"
+        x-requirement: recommended
+        description: "Basis for SME/start-up eligibility (e.g. headcount, turnover, founding date)."
+    # Conditional: declaring the simplified route requires stating the SME category.
+    if:
+      properties:
+        uses_simplified_route:
+          const: true
+    then:
+      required:
+        - uses_simplified_route
+        - organisation_size

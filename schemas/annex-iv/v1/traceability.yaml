@@ -292,11 +292,75 @@ fields:
       Article 72, including the post-market monitoring plan referred
       to in Article 72(3)
 
+  # Article 11(2) — Product-bundle technical documentation (Annex I Section A)
+  - path: product_harmonisation.under_annex_i_section_a
+    annex_iv: "art-11(2)"
+    requirement: conditional
+    condition: "where the AI system relates to a product covered by Annex I, Section A legislation"
+    cross_reference: "Article 11(2); Annex I, Section A"
+    regulation_text: >
+      Where a high-risk AI system related to a product covered by the Union
+      harmonisation legislation listed in Section A of Annex I is placed on the
+      market or put into service, a single set of technical documentation shall
+      be drawn up
+
+  - path: product_harmonisation.applicable_legislation
+    annex_iv: "art-11(2)"
+    requirement: conditional
+    condition: "where under_annex_i_section_a is true"
+    cross_reference: "Annex I, Section A"
+    regulation_text: "the Union harmonisation legislation listed in Section A of Annex I"
+
+  - path: product_harmonisation.additional_documentation
+    annex_iv: "art-11(2)"
+    requirement: conditional
+    condition: "where under_annex_i_section_a is true"
+    cross_reference: "Article 11(2)"
+    regulation_text: >
+      a single set of technical documentation ... containing all the information
+      set out in paragraph 1, as well as the information required under those
+      legal acts
+
+  # Article 11(1) — SME / start-up simplified documentation route
+  - path: simplified_documentation.uses_simplified_route
+    annex_iv: "art-11(1)"
+    requirement: conditional
+    condition: "where the provider is an SME or start-up electing the simplified route"
+    cross_reference: "Article 11(1)"
+    regulation_text: >
+      SMEs, including start-ups, may provide the elements of the technical
+      documentation specified in Annex IV in a simplified manner
+
+  - path: simplified_documentation.organisation_size
+    annex_iv: "art-11(1)"
+    requirement: conditional
+    condition: "where uses_simplified_route is true"
+    cross_reference: "Article 11(1)"
+    regulation_text: "SMEs, including start-ups"
+
+  - path: simplified_documentation.commission_form_reference
+    annex_iv: "art-11(1)"
+    requirement: recommended
+    cross_reference: "Article 11(1)"
+    regulation_text: >
+      the Commission shall establish a simplified technical documentation form
+      targeted at the needs of small and microenterprises ... it shall use the form
+
+  - path: simplified_documentation.justification
+    annex_iv: "art-11(1)"
+    requirement: recommended
+    cross_reference: "Article 11(1)"
+    regulation_text: "SMEs, including start-ups"
+
 summary:
-  total_fields: 42
+  total_fields: 49
   required: 29
-  conditional: 9
-  recommended: 4
+  conditional: 14
+  recommended: 6
   annex_iv_sections_covered: 9
   annex_iv_sections_total: 9
-  coverage: "100%"
+  annex_iv_coverage: "100%"
+  # Article 11 framing of Annex IV, beyond the nine annex sections:
+  article_11_extensions:
+    - "11(1) SME/start-up simplified documentation route"
+    - "11(2) single documentation set for Annex I Section A product-bundle systems"

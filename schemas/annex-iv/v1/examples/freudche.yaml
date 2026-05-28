@@ -469,3 +469,19 @@ post_market_monitoring:
     performance review with updated risk assessment. Incident reporting
     per Article 73 within 15 days of serious incident awareness.
     All monitoring data retained for 10 years per Article 18.
+
+# Article 11(1): Freudche is a start-up and elects the SME simplified route.
+# (Recorded for transparency; the full Annex IV elements above are still provided.)
+simplified_documentation:
+  uses_simplified_route: true
+  organisation_size: "startup"
+  commission_form_reference: ""
+  justification: >
+    Reza Labs B.V. qualifies as a micro/start-up enterprise under the SME
+    definition (headcount < 10, founded 2025); elects the Article 11(1)
+    simplified documentation route while still providing the full Annex IV set.
+
+# Article 11(2): delivered as software (SaaS/API), not a product covered by
+# Annex I, Section A harmonisation legislation, so no merged documentation set.
+product_harmonisation:
+  under_annex_i_section_a: false

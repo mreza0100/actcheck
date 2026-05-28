@@ -269,3 +269,27 @@ declaration_of_conformity:
 post_market_monitoring:
   evaluation_system: "FILL: system for evaluating performance in the post-market phase."
   monitoring_plan: "FILL: the post-market monitoring plan per Article 72(3)."
+
+# === Article 11(2). Product-bundle documentation (OPTIONAL) =================
+# Only if the AI system relates to a product covered by Annex I, Section A
+# legislation (e.g. medical devices, machinery, toys). If so, a SINGLE
+# documentation set must also carry the info required under those acts.
+# Uncomment and set under_annex_i_section_a: true to activate the conditional.
+# product_harmonisation:
+#   under_annex_i_section_a: false
+#   applicable_legislation:
+#     - reference: "FILL: e.g. Regulation (EU) 2017/745 — Medical Devices"
+#       scope: "FILL: how the act applies to this system"
+#   additional_documentation:
+#     - requirement: "FILL: documentation element required by the sectoral act"
+#       location: "FILL: file path or section reference"
+
+# === Article 11(1). SME / start-up simplified route (OPTIONAL) ==============
+# SMEs and start-ups MAY provide Annex IV elements in a simplified manner using
+# the Commission's simplified form. Recording the route does not relax actcheck's
+# structural checks. Uncomment to declare eligibility and intent.
+# simplified_documentation:
+#   uses_simplified_route: false
+#   organisation_size: "startup"        # micro | small | medium | startup
+#   commission_form_reference: ""       # once the Commission form is published
+#   justification: "FILL: basis for SME/start-up eligibility"
