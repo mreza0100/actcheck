@@ -37,10 +37,15 @@ program
       if (result.valid) {
         const cov = coverage(filePath);
         console.log(
-          `${pc.bold(pc.green("VALID"))} — ${declaration}`,
+          `${pc.bold(pc.green("Schema-valid"))} — ${declaration}`,
         );
         console.log(
-          `  Annex IV coverage: ${cov.covered}/${cov.total} sections (${cov.percentage}%)`,
+          `  Structural coverage: ${cov.covered} of ${cov.total} Annex IV sections present (${cov.percentage}%)`,
+        );
+        console.log(
+          pc.dim(
+            "  Note: structural completeness only; content adequacy and legal conformity are not assessed by actcheck.",
+          ),
         );
         process.exit(0);
       }
@@ -93,7 +98,12 @@ program
 
     console.log("  └─────────────────────────────────────────┴─────────┘");
     console.log(
-      `\n  ${pc.bold(`${cov.covered}/${cov.total}`)} sections covered (${cov.percentage}%)`,
+      `\n  Structural coverage: ${pc.bold(`${cov.covered} of ${cov.total}`)} Annex IV sections present (${cov.percentage}%)`,
+    );
+    console.log(
+      pc.dim(
+        "  Note: structural completeness only; content adequacy and legal conformity are not assessed by actcheck.\n",
+      ),
     );
   });
 

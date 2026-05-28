@@ -12,20 +12,24 @@
 #   1. Copy this file to e.g. `annex-iv.yaml` in your project.
 #   2. Replace every  FILL: …  placeholder with real, specific content.
 #   3. Run `actcheck validate annex-iv.yaml`. It checks STRUCTURE and
-#      COMPLETENESS against the regulation — it does not (and cannot) judge legal
-#      conformity. You remain responsible for the truth of what you declare,
-#      exactly as you are for the code you write.
+#      COMPLETENESS against the schema, which encodes Annex IV §§1–9 — it
+#      does not (and cannot) judge legal conformity. You remain responsible
+#      for the truth of what you declare, exactly as you are for the code
+#      you write.
 #
 # CONVENTIONS — every field below is annotated with:
-#   §X(y)        the exact Annex IV point it satisfies
-#   [REQUIRED]   must be present and meaningful (empty/placeholder text fails)
+#   §X(y)        the exact Annex IV point it maps to
+#   [REQUIRED]   must be present and meet the schema's typed/length constraints
 #   [CONDITIONAL] required only when the stated condition applies — otherwise omit
 #   [RECOMMENDED] not enforced, but reviewers and auditors expect it
 #
-# WHY THIS TEMPLATE IS DIFFERENT
-#   Faithful to all NINE Annex IV points (not collapsed to 7), in English, with a
-#   per-field regulation citation and requirement level. A declaration full of
-#   placeholder prose does NOT pass — completeness is enforced field by field.
+# WHAT THIS TEMPLATE ENFORCES
+#   Faithful to all NINE Annex IV points, in English, with a per-field
+#   regulation citation and requirement level. Completeness is enforced at
+#   the schema level: required fields must be present and meet typed/length
+#   constraints; conditional fields are required when their trigger applies.
+#   The schema does not (yet) detect unreplaced placeholder text in field
+#   values — that detection is the next planned validator improvement.
 # ─────────────────────────────────────────────────────────────────────────────
 
 # === Declaration metadata ====================================================

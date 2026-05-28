@@ -7,7 +7,7 @@
 [![Node.js](https://img.shields.io/badge/node-%3E%3D20-brightgreen)](#)
 [![Status: prototype](https://img.shields.io/badge/status-prototype-orange)](#status)
 
-**actcheck** is the open, faithful, standalone specification for the technical documentation required by **Annex IV of the EU AI Act** (Regulation (EU) 2024/1689), plus a deterministic command-line validator that enforces it.
+**actcheck** is the open, faithful, standalone specification for the technical documentation required by **Annex IV of the EU AI Act** (Regulation (EU) 2024/1689), plus a deterministic command-line validator that checks declarations against it.
 
 The spec *is* the product — like OpenAPI for REST. Other tools can adopt and consume it.
 
@@ -29,19 +29,39 @@ Existing FOSS tools in the space fall short in characteristic ways:
 
 ## 30-second quickstart
 
+Run it without installing — straight from the [npm registry](https://www.npmjs.com/package/actcheck):
+
 ```bash
-# Install dependencies and build
-npm install && npm run build
+npx actcheck validate <your-declaration.yaml>
+```
 
-# Validate the canonical fillable template
-node dist/cli.js validate schemas/annex-iv/v1/template.yaml
-# → VALID — Annex IV coverage: 9/9 sections (100%)
+Or install globally:
 
-# Or validate the minimal worked example
-node dist/cli.js validate schemas/annex-iv/v1/examples/minimal.yaml
+```bash
+npm install -g actcheck
+actcheck validate <your-declaration.yaml>
+```
+
+Try it on this repo's canonical artifacts:
+
+```bash
+git clone https://github.com/mreza0100/actcheck && cd actcheck
+npx actcheck validate schemas/annex-iv/v1/examples/minimal.yaml
+# → Schema-valid — Structural coverage: 9 of 9 Annex IV sections present (100%)
+
+npx actcheck validate schemas/annex-iv/v1/template.yaml
+# → Schema-valid — Structural coverage: 9 of 9 Annex IV sections present (100%)
 ```
 
 Copy `schemas/annex-iv/v1/template.yaml` into your project, replace every `FILL:` placeholder with real content, and run `actcheck validate <your-file.yaml>` in CI.
+
+### From source (for contributors)
+
+```bash
+git clone https://github.com/mreza0100/actcheck && cd actcheck
+npm install && npm run build && npm test
+node dist/cli.js validate schemas/annex-iv/v1/examples/minimal.yaml
+```
 
 ## What's in this repo
 
@@ -70,7 +90,9 @@ The schema and traceability cover every numbered point of Annex IV referenced fr
 | 8 | EU declaration of conformity (Art. 47) | ✅ |
 | 9 | Post-market monitoring (Art. 72) | ✅ |
 
-The validator reports `Annex IV coverage: 9/9 sections (100%)` when satisfied.
+The validator reports `Structural coverage: 9 of 9 Annex IV sections present` when a declaration is structurally complete against the schema.
+
+> *Coverage measures schema-level structural presence — required fields are filled and conditional triggers handled. It does **not** measure substantive content adequacy or legal conformity; those remain the declarer's responsibility (see disclaimer below).*
 
 ## The linter philosophy
 
