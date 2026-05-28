@@ -1,487 +1,501 @@
-# Freudche — AI Therapy Assistant
-# Full Annex IV declaration for an AI-native therapy app.
-# High-risk under Annex III, Section 5(a): healthcare AI.
+# Freudche — AI co-pilot for therapists (Dutch GGZ market)
+# Full Annex IV-style declaration, regenerated from the actual product.
+#
+# CLASSIFICATION IS THE OPEN QUESTION. The provider's commercial position is
+# that Freudche is NOT a medical device (outside MDR scope) and is self-assessed
+# as NOT high-risk under Article 6 — the active AI Act obligation being Article 50
+# transparency. This full Annex IV dossier is nonetheless maintained
+# precautionarily, because (a) the MDSW classification under the Medical Device
+# Regulation is genuinely contested for software performing crisis detection and
+# psychological pattern analysis, and (b) Dutch GGZ institutional procurement and
+# NEN 7510 readiness require comprehensive technical documentation regardless of
+# the high-risk determination. See development.design_specifications.classification_choices.
+# A binding classification ruling is a /officer matter, not a schema matter.
 
 actcheck:
   schema_version: "1.0.0"
-  declaration_date: "2026-05-17"
+  declaration_date: "2026-05-28"
 
 general_description:
   intended_purpose: >
-    Freudche is an AI-powered therapy assistant that provides cognitive
-    behavioral therapy (CBT) techniques and mental health support through
-    conversational interaction. Intended for use by licensed therapists as
-    a supplementary tool during and between therapy sessions. Not a
-    standalone treatment and not intended for unsupervised patient use.
+    Freudche is a therapist-facing clinical co-pilot for licensed mental-health
+    professionals (GGZ, Netherlands). It transcribes recorded therapy sessions,
+    drafts clinical notes in 20+ formats, and analyses sessions to surface
+    cross-session patterns, character and relationship maps, Rose of Leary
+    scores, approach-specific insights, and therapist-effectiveness signals.
+    It is used by the therapist between and after sessions to document and to
+    decide what to explore next. It does NOT interact with patients, does NOT
+    diagnose, and does NOT recommend treatment — the therapist retains full
+    clinical responsibility for every decision. Outputs are advisory and clearly
+    marked as AI-generated.
   provider:
-    name: "Freudche B.V."
-    address: "Amsterdam, Netherlands"
-    contact: "compliance@freudche.com"
-  system_version: "2.1.0"
+    name: "Reza Labs B.V. (trading as Freudche)"   # CONFIRM legal entity / KvK
+    address: "Netherlands"                          # CONFIRM registered address
+    contact: "reza@freudche.com"
+  system_version: "demo-2026-05"                    # pre-commercial; live read-only demo
   version_history: >
-    v1.0 (2025-03): Initial release with GPT-4 backend.
-    v2.0 (2025-11): Migrated to Gemini 2.0 Flash, added LangChain
-    orchestration, expanded CBT module library.
-    v2.1 (2026-05): Added risk monitoring dashboard, refined prompt
-    safety filters.
+    Pre-commercial. A live read-only demo runs at demo.freudche.com.
+    LLM analysis migrated to Gemini 2.5 Flash Lite via Google Vertex AI.
+    No commercial release has been issued; the lifecycle change log below
+    begins at first production deployment.
 
   external_interactions:
     description: >
-      Integrates with Google Gemini 2.0 Flash via API for language
-      generation. Uses LangChain for prompt orchestration and conversation
-      memory. Optionally integrates with EHR systems via HL7 FHIR for
-      session notes export.
+      Audio transcription is performed by AssemblyAI via its EU endpoint
+      (api.eu.assemblyai.com — the US default endpoint is prohibited for
+      data-residency reasons). All LLM analysis is performed by Google
+      Gemini 2.5 Flash Lite via Google Vertex AI, called exclusively from
+      the Cortex service. Transactional email via Resend. No other system
+      receives patient data.
     software_interfaces:
-      - name: "Google Gemini 2.0 Flash API"
+      - name: "AssemblyAI (EU endpoint)"
+        type: "Speech-to-text transcription"
+        interaction: "Batch transcription of 16 kHz mono WAV session audio over HTTPS; EU region only"
+      - name: "Google Vertex AI — Gemini 2.5 Flash Lite"
         type: "LLM inference"
-        interaction: "HTTP REST API calls for response generation"
-      - name: "LangChain v0.3"
-        type: "Orchestration framework"
-        interaction: "Embedded library for prompt chains and memory"
+        interaction: "Prompt-driven analysis and Jungche chat; called only from the Cortex service"
     ai_system_interfaces:
-      - name: "Sentiment analysis module (internal)"
-        interaction: "Classifies user emotional state per message to inform response strategy"
+      - name: "Jungche (internal LangGraph agent)"
+        interaction: "Therapist-facing chatbot that surfaces engine analysis via read tools; output gated by finalize_node before reaching the user"
 
   software_versions:
     components:
-      - name: "freudche-core"
-        version: "2.1.0"
-      - name: "langchain"
-        version: "0.3.14"
-      - name: "google-generativeai"
-        version: "0.8.4"
-      - name: "freudche-sentiment"
-        version: "1.2.0"
+      - name: "freudche-fe (Expo SDK 52 / React Native 0.76)"
+        version: "demo-2026-05"
+      - name: "freudche-be (Express + GraphQL Yoga + Drizzle)"
+        version: "demo-2026-05"
+      - name: "freudche-cortex (Python 3.12 / LangChain + LangGraph)"
+        version: "demo-2026-05"
+      - name: "freudche-web (Next.js 15 marketing site)"
+        version: "demo-2026-05"
     update_requirements: >
-      Gemini API version pinned; updates require re-validation of safety
-      filter effectiveness. LangChain updates require regression testing
-      of prompt chains before deployment.
+      Gemini model version is pinned in Cortex; a model change requires
+      re-running the Jungche adversarial regression anchors and the
+      finalize_node compliance-gate tests before deployment. AssemblyAI
+      remains on the EU endpoint across all updates.
 
   distribution_forms:
     - form: saas
-      description: "Progressive web app accessible via browser (therapist dashboard)"
+      description: "Hosted service; therapists use the Expo app on web and Android against the GraphQL backend"
     - form: api
-      description: "REST API for EHR integration partners"
+      description: "GraphQL API consumed by the first-party client only; no third-party API distribution"
 
   target_hardware: >
-    Cloud-hosted on GCP (europe-west4, Netherlands). No on-device inference.
-    Client requirements: modern browser (Chrome 120+, Firefox 115+, Safari 17+).
-    Server: Cloud Run instances with 4 vCPU, 16GB RAM.
+    Cloud-hosted on a Hetzner CCX13 server (EU region), behind a Caddy reverse
+    proxy, deployed as Docker Compose services via GitHub Actions. Gemini
+    inference runs on Google Vertex AI; transcription on AssemblyAI EU. No
+    on-device inference. Client: modern web browser or Android device running
+    the Expo app.
 
   product_integration:
     is_component_of_product: false
 
   deployer_interface: >
-    Therapists access a dashboard showing: active patient sessions,
-    conversation summaries, flagged risk indicators, session scheduling.
-    Admin panel for clinic-level configuration including safety thresholds
-    and escalation protocols.
+    The therapist (deployer and primary user) sees: live and recorded session
+    transcripts, AI-drafted notes in a format-aware editor (editable, with an
+    AI-disclaimer banner when aiGenerated is true), per-patient analysis
+    (summaries, insights, character and relationship maps, Rose of Leary
+    scores, radar observations), and the Jungche chat assistant. Risk/crisis
+    indicators are surfaced as alerts. The therapist can edit notes, ignore
+    or accept any AI suggestion, and controls session recording and deletion.
 
   instructions_for_use: >
-    Deployer manual (120 pages) covers: system setup, patient onboarding,
-    interpreting AI suggestions, override procedures, emergency escalation
-    protocols, data retention configuration, GDPR data subject request
-    handling.
+    In-product guidance plus clinical-safety UI rules (AI-disclaimer banners,
+    Jungche reasoning disclaimer, CLINICAL_DISCLAIMER injected into live notes).
+    Onboarding covers consent capture, recording, note review and editing, and
+    the limits of AI output. Formal deployer documentation is maintained as the
+    product moves from demo to commercial release.
 
 development:
   methods:
     development_steps: >
-      1. Requirements gathered from 12 licensed CBT therapists across
-         3 practices. 2. Prompt engineering with Gemini 2.0 Flash using
-         CBT protocol libraries. 3. LangChain orchestration layer for
-         multi-turn conversation management. 4. Safety filter layer
-         (content filtering + crisis detection). 5. Clinical validation
-         with 3 therapy practices (N=150 patients, 6 months).
+      1. Audio captured client-side (16 kHz mono WAV), uploaded to S3 after
+         session finalization. 2. Backend dispatches transcription to AssemblyAI
+         (EU) and persists the transcript. 3. Backend enqueues an analysis
+         request on SQS. 4. Cortex consumes the request, runs LangGraph
+         StateGraph chains over the transcript using Gemini (Vertex AI), and
+         writes session summaries, insights, character profiles, relationship
+         and Rose of Leary scores, and radar observations. 5. All LLM-generated
+         text passes the finalize_node compliance gate before any result is
+         returned via the SQS result queue. 6. Backend persists results; the
+         therapist reviews and edits in the app. No model is trained — the
+         system is prompt-engineered on top of foundation models accessed via API.
     third_party_components:
-      - name: "Google Gemini 2.0 Flash"
+      - name: "Google Gemini 2.5 Flash Lite (via Vertex AI)"
         type: pre_trained_model
         usage: >
-          Used as-is for language generation. Not fine-tuned. Accessed
-          via API. System prompts constrain output to CBT techniques
-          and safety boundaries.
-      - name: "LangChain"
+          Used as-is via API for all analysis and Jungche chat. Not fine-tuned.
+          Behaviour constrained by system prompts and the finalize_node gate.
+      - name: "AssemblyAI"
+        type: pre_trained_model
+        usage: >
+          Used as-is via the EU endpoint for batch speech-to-text. Not fine-tuned.
+      - name: "LangChain + LangGraph"
         type: framework
         usage: >
-          Orchestrates conversation flow, manages context window,
-          implements retrieval-augmented generation for CBT technique
-          lookup from internal knowledge base.
-      - name: "DistilBERT (HuggingFace)"
-        type: pre_trained_model
-        usage: >
-          Fine-tuned for sentiment classification on therapy-adjacent
-          conversation data. Embedded in freudche-sentiment module.
+          Orchestrates the analysis StateGraph chains and the Jungche agent
+          (read/write tools, conversation state, history compaction).
 
   design_specifications:
     general_logic: >
-      User sends message -> sentiment analysis -> crisis detection ->
-      context retrieval (CBT technique library) -> Gemini prompt
-      construction -> response generation -> safety filter -> response
-      delivery. Therapist can review and override at any point in the
-      pipeline.
+      Session audio -> AssemblyAI transcription (BE) -> SQS analysis request ->
+      Cortex LangGraph chains (Gemini analysis) -> finalize_node compliance gate
+      -> SQS result -> BE persistence -> therapist review in app. Jungche live
+      chat streams via an HMAC-authenticated SSE proxy (BE -> Cortex), with the
+      LLM call owned by Cortex and output gated by finalize_node.
     algorithms: >
-      Language generation: Gemini 2.0 Flash (transformer-based LLM,
-      accessed via API). Sentiment analysis: fine-tuned DistilBERT
-      classifier (6 emotion categories). Crisis detection: dual-layer
-      system combining rule-based keyword matching with ML classifier.
+      No bespoke models are trained. Analysis is performed by Gemini 2.5 Flash
+      Lite under task-specific prompts and retrieval over prior session data.
+      Crisis/risk detection and paralinguistic labelling are prompt-driven
+      classifications surfaced with confidence indicators and an AI-generated
+      marker. Transcription is AssemblyAI's hosted model.
     key_design_choices:
-      - choice: "Use pre-trained LLM via API rather than fine-tuned model"
+      - choice: "All LLM calls isolated to the Cortex service"
         rationale: >
-          Fine-tuning on therapy data raises patient privacy concerns
-          and requires ongoing retraining. Prompt engineering with CBT
-          protocols achieves comparable quality while avoiding training
-          on sensitive data.
+          A single boundary for model access makes prompt governance, the
+          finalize_node compliance gate, and Article 50 marking enforceable in
+          one place; the backend and frontend make zero LLM calls.
         assumptions: >
-          Target users are licensed therapists who can evaluate AI
-          suggestions professionally. The system supplements, not
-          replaces, clinical judgment.
-      - choice: "Dual-layer crisis detection (rules + ML)"
+          Any new AI-output surface routes through finalize_node, so no raw
+          model text can reach the therapist unchecked.
+      - choice: "Therapist-facing only; patients never interact with the system"
         rationale: >
-          Rule-based layer catches explicit crisis language with near-zero
-          false negatives. ML layer catches subtle indicators. Combined
-          approach minimizes missed crises.
+          Keeps Freudche a documentation and decision-support tool under the
+          clinician's control, supporting the not-a-medical-device position and
+          the Article 14 human-oversight design.
         assumptions: >
-          Users may express suicidal ideation or self-harm intent. False
-          positives (unnecessary escalation) are preferable to false
-          negatives (missed crisis).
-      - choice: "EU-only data residency (GCP europe-west4)"
+          The deployer is a licensed GGZ professional who reviews every output
+          before acting and retains full clinical responsibility.
+      - choice: "EU-only data residency end to end"
         rationale: >
-          Patient therapy data is special category data under GDPR Art. 9.
-          EU-only hosting eliminates transfer risk and simplifies DPIA.
+          Therapy session data is special-category health data under GDPR Art. 9.
+          AssemblyAI EU endpoint, EU Vertex AI region, and EU hosting eliminate
+          transfer risk and align with AVG and AI Kompas voor de GGZ.
+        assumptions: >
+          The US AssemblyAI endpoint is never used; this is enforced as an
+          architectural rule.
     target_persons_groups: >
-      Primary deployers: licensed therapists (psychologists, psychiatrists,
-      licensed counselors) in EU member states. Indirect subjects: their
-      patients (adults 18+). System not validated for use with minors.
+      Direct users: licensed therapists and psychologists in the Dutch GGZ
+      system. Indirect data subjects: their adult patients, whose recorded
+      sessions are transcribed and analysed. Not validated for use with minors.
     classification_choices: >
-      High-risk under Annex III, Section 5(a): AI system intended to be
-      used in healthcare for assisting clinical decision-making regarding
-      mental health treatment.
+      Provider's commercial assessment: Freudche is NOT a medical device and is
+      treated as outside the Medical Device Regulation (Regulation (EU) 2017/745)
+      scope — it documents and supports, it does not diagnose, treat, or
+      prescribe, and the therapist retains full clinical responsibility. On that
+      basis the provider self-assesses the system as NOT high-risk under
+      Article 6, with Article 50 (transparency of AI-generated content) as the
+      active AI Act obligation. THIS DETERMINATION IS CONTESTED AND UNSETTLED:
+      software performing crisis/suicide-risk detection and psychological
+      pattern analysis can plausibly be argued into MDSW (medical device
+      software) territory, and the high-risk question for health-adjacent
+      profiling is not free from doubt. This Annex IV dossier is therefore
+      maintained precautionarily and for GGZ procurement / NEN 7510 readiness.
+      A binding classification belongs to a qualified regulatory assessment
+      (actcheck does not assess legal conformity).
     optimization_targets: >
-      Optimized for: therapeutic relevance of responses (measured by
-      therapist ratings), safety (zero missed crisis indicators), and
-      session continuity (coherent multi-turn therapeutic dialogue).
+      Clinical usefulness of notes and insights as judged by the therapist,
+      faithfulness to the transcript (no fabricated clinical content), and
+      safety (the finalize_node gate must block unsafe or non-compliant output).
     parameter_relevance: >
-      Temperature: 0.3 (low for consistency in therapeutic context).
-      Max tokens: 500 per response (prevents overwhelming patients).
-      Context window: last 20 messages (sufficient for session coherence).
+      Generation parameters are tuned for faithful, conservative output rather
+      than creativity; Jungche history is compacted into rolling 4-section
+      summaries (~400-word cap) to keep context bounded across turns.
     expected_output: >
-      Natural language therapeutic responses grounded in CBT techniques.
-      Responses include: empathetic acknowledgment, technique suggestion,
-      guided exercise prompt, or escalation alert.
+      AI-drafted clinical notes (20+ formats), session summaries, approach-
+      specific insight documents (therapist-uneditable, advisory), character
+      and relationship maps, Rose of Leary scores, radar observations, and
+      Jungche chat responses — each marked as AI-generated.
     output_quality: >
-      Therapist relevance rating: 4.2/5.0 average (N=150 sessions).
-      Crisis detection recall: 99.7%. Response coherence: 4.5/5.0.
+      Quality is guarded structurally rather than by a published accuracy
+      benchmark: the finalize_node three-stage gate (deny-list -> classifier ->
+      rewrite-once -> BLOCK with a safe message) and the Jungche adversarial
+      regression anchors (identity, voice rules, red lines, error protocol,
+      section structure, length floor). No clinical-outcome study is claimed.
     compliance_tradeoffs: >
-      Chose higher false-positive rate for crisis detection (8%) to ensure
-      near-zero false negatives, accepting some unnecessary escalations
-      to protect patient safety per Article 9 risk management requirements.
+      The finalize_node gate is deliberately conservative — it will block or
+      rewrite borderline output even at the cost of occasionally withholding a
+      useful response, prioritising safety and Article 50 compliance over recall.
 
   architecture:
     description: >
-      Three-tier architecture: React frontend (therapist dashboard) ->
-      FastAPI backend (orchestration) -> GCP Cloud Run (inference).
-      Backend orchestrates: LangChain agent (conversation management),
-      Gemini API (text generation), PostgreSQL (session storage), Redis
-      (conversation cache), DistilBERT microservice (sentiment analysis).
-      All components EU-hosted (GCP europe-west4, Netherlands).
+      Five projects across GraphQL, WebSocket, and SQS boundaries:
+      freudche-fe (Expo SDK 52 / React Native 0.76 / Expo Router / Apollo /
+      NativeWind — web + Android); freudche-be (Express + GraphQL Yoga +
+      Drizzle ORM + PostgreSQL, JWT auth, AssemblyAI EU transcription);
+      freudche-cortex (Python 3.12, LangChain + LangGraph, Gemini via Vertex AI,
+      SQLAlchemy, SQS consumer, finalize_node gate); freudche-infra (Docker
+      Compose, LocalStack, PostgreSQL); freudche-web (Next.js 15 marketing site).
+      Transports: FE->BE GraphQL/WebSocket; BE->Cortex via SQS (analysis-requests,
+      analysis-results, live-chunks) plus an HMAC-authenticated SSE proxy for
+      Jungche live chat; Cortex->BE via the SQS result queue (Cortex never calls
+      BE directly). Write ownership is split: BE owns application/PHI tables,
+      Cortex owns analysis tables.
     computational_resources:
-      development: "GCP Vertex AI workbench, 4x T4 GPUs for sentiment model training"
-      training: "Sentiment model: 8 hours on single T4 GPU. LLM: no training (API-based)."
-      testing: "Automated test suite: ~2 hours on 8-core CI runner"
-      validation: "Clinical validation: 6 months, 3 practices, 150 patients"
+      development: "Local Docker Compose + LocalStack; no GPUs (inference is API-based)"
+      training: "None — no model is trained; foundation models are accessed via API"
+      testing: "Vitest (BE/FE), pytest + pytest-asyncio (Cortex) on standard CI runners"
+      validation: "finalize_node gate tests and Jungche adversarial regression anchors"
 
   data_requirements:
     training_methodologies: >
-      Sentiment classifier fine-tuned using supervised learning on
-      therapy-adjacent conversation datasets. No patient data used
-      in training. Transfer learning from pre-trained DistilBERT.
-    training_datasets:
-      - name: "GoEmotions"
-        description: "58K Reddit comments labeled with 27 emotion categories, mapped to 6 therapy-relevant categories"
-        provenance: "Google Research, publicly available under Apache 2.0"
-        scope: "English-language emotional expression in text"
-        characteristics: "Skewed toward casual language; augmented with therapy vocabulary via synonym expansion"
-      - name: "Therapy Dialogue Corpus (synthetic)"
-        description: "5K synthetic therapy dialogue snippets generated and labeled by clinical psychologists"
-        provenance: "Created internally by Freudche clinical team"
-        scope: "CBT-style therapeutic conversation patterns"
-        characteristics: "Balanced across 6 emotion categories, reviewed by 2 clinical psychologists"
+      Not applicable. Freudche trains no models. All inference uses pre-trained
+      foundation models (Gemini via Vertex AI, AssemblyAI) accessed via API and
+      steered by prompts and retrieval over the therapist's own session data.
+    training_datasets: []   # none — no training is performed
     data_selection: >
-      Selected datasets with emotional content similar to therapy
-      conversations. Excluded datasets containing minors' data or
-      identifiable patient information.
+      No training data is selected. At inference time, only the relevant
+      patient's own sessions are retrieved (patient-scoped via JOIN), and no
+      customer data is used to train any model without explicit permission.
     labeling_procedures: >
-      GoEmotions: original labels from Google Research (3 raters per sample),
-      remapped to 6 categories. Synthetic corpus: labeled by 2 clinical
-      psychologists + 1 NLP researcher, inter-rater agreement kappa=0.82.
+      Not applicable — no supervised training. Analysis labels (e.g. Rose of
+      Leary scores, paralinguistic labels) are produced at inference time with
+      confidence indicators and an AI-generated marker.
     data_cleaning: >
-      Removed duplicates, near-duplicates (cosine similarity > 0.95),
-      entries with < 5 tokens. Outlier detection via isolation forest
-      on embedding space. PII scan using Presidio before training.
+      Not applicable to training. Operationally, application logs never contain
+      patient names, transcript content, note content, or LLM-generated text —
+      only IDs and metadata — and PHI access is logged to phi_access_log.
 
   human_oversight:
     assessment: >
-      Per Article 14: therapists maintain full decision authority. All AI
-      suggestions are presented as recommendations, never as directives.
-      Therapists can: (a) override any suggestion, (b) disable AI for
-      specific sessions, (c) halt the system via emergency stop button,
-      (d) review full conversation logs, (e) configure safety thresholds.
+      Per Article 14: the therapist is in full control. Every AI output is
+      advisory and reviewable — notes are editable, insight documents are clearly
+      marked AI-generated and advisory, and no output reaches the therapist
+      without passing the finalize_node compliance gate. The system performs no
+      action on a patient and makes no decision; it documents and surfaces.
     interpretability_measures: >
-      Per Article 13(3)(d): each AI response includes a confidence
-      indicator (low/medium/high) and the CBT technique category it
-      draws from. Dashboard shows: conversation sentiment trajectory,
-      technique usage distribution, and flagged risk indicators with
-      plain-language explanation of why the flag was raised.
+      Per Article 13/Article 50: a machine-readable aiGenerated marker on
+      SessionAnalysis, SessionCharacter, CharacterRoseScore, SessionInsight and
+      SessionRadar; AI-disclaimer banners in the app; a CLINICAL_DISCLAIMER on
+      live notes; a Jungche reasoning disclaimer; and evidence quote chips that
+      tie insights back to transcript passages.
 
   predetermined_changes:
     has_predetermined_changes: true
     changes:
-      - description: "Gemini model version updates (within 2.x family)"
-        trigger: "Google deprecates current model version"
-        expected_impact: "Minor response style changes, latency may vary"
-      - description: "CBT technique library expansion"
-        trigger: "New validated CBT protocols published and reviewed by clinical board"
-        expected_impact: "Broader range of technique suggestions"
-      - description: "Sentiment model retraining"
-        trigger: "Quarterly bias audit reveals accuracy degradation > 2%"
-        expected_impact: "Improved sentiment classification accuracy"
+      - description: "Gemini model version updates within the supported family"
+        trigger: "Google deprecates or supersedes the pinned Vertex AI model"
+        expected_impact: "Possible changes in phrasing/quality; gate and anchors must still pass"
+      - description: "New analysis chains or read tools (e.g. new insight fields)"
+        trigger: "Product roadmap adds an engine output Jungche must surface"
+        expected_impact: "Jungche tool schemas and prompts updated in the same change to avoid drift"
     performance_impact: >
-      Gemini updates: monitored via automated regression test suite (300
-      standardized prompts, performance must stay within 5% tolerance of
-      baseline). Technique library: reviewed by clinical advisory board
-      before deployment. Sentiment retraining: validated on held-out test
-      set before production deployment.
+      Any model or prompt change re-runs the finalize_node compliance-gate tests
+      and the Jungche adversarial regression anchors before deployment; a change
+      that breaks an anchor must be fixed intentionally or reverted.
     continuous_compliance: >
-      Automated regression pipeline runs on every model/library update.
-      Results logged and compared against baseline metrics. Significant
-      deviations (> 5% on any metric) trigger manual review before
-      deployment. All changes logged in lifecycle_changes section.
+      The compliance gate and the regression anchors run in CI on every change
+      to model, prompt, or engine output. Engine/Jungche contract drift is
+      treated as a blocking defect, not a follow-up.
 
   validation_and_testing:
     procedures: >
-      Unit tests (prompt chain correctness), integration tests (end-to-end
-      conversation flows), safety tests (adversarial prompt injection,
-      crisis scenario coverage), clinical validation (therapist-rated
-      real sessions with informed consent).
+      Vitest unit/integration tests (BE, FE), pytest + pytest-asyncio (Cortex),
+      integration tests hitting real PostgreSQL and LocalStack SQS with a faked
+      external LLM, finalize_node compliance-gate tests, and Jungche adversarial
+      regression anchors guarding identity, voice, red lines, error protocol,
+      section structure, and length floor. No clinical-outcome trial is claimed.
     test_data:
-      description: "300 standardized therapy conversation scenarios"
+      description: "Seeded demo sessions and synthetic transcripts; faked LLM output in CI"
       characteristics: >
-        Covers: anxiety (80), depression (70), stress (60), relationship
-        issues (40), grief (30), other (20). Includes 50 crisis scenarios,
-        30 adversarial prompts (jailbreak attempts, off-topic steering),
-        20 edge cases (multilingual input, ambiguous intent).
+        Covers note generation, analysis chains, Jungche tool surfaces, and
+        adversarial prompts against the compliance gate. No real patient data
+        is used in testing.
     metrics:
-      accuracy: "Therapist relevance rating: 4.2/5.0 (target: >= 4.0)"
-      robustness: "Adversarial prompt resistance: 97% blocked. OCR/typo tolerance: 91%."
-      compliance_metrics: "Crisis detection recall: 99.7% (target: >= 99.5%)"
+      accuracy: "No published accuracy benchmark; output quality guarded by the compliance gate and regression anchors (see output_quality)"
+      robustness: "Adversarial regression anchors must pass on every prompt/model change; finalize_node blocks unsafe output"
+      compliance_metrics: "aiGenerated marker present on all AI-output GraphQL types; PHI access logged; EU endpoints enforced"
       discrimination_assessment: >
-        Tested across 5 demographic proxies (age brackets, inferred gender
-        from name, language preference). No statistically significant
-        accuracy differences detected (chi-squared test, p > 0.05 for
-        all pairwise comparisons).
-    test_logs:
-      - file: "docs/test-reports/clinical-validation-2026-03.pdf"
-        date: "2026-03-15"
-        signed_by: "Dr. Anna van der Berg, Clinical Lead"
-      - file: "docs/test-reports/safety-audit-2026-04.pdf"
-        date: "2026-04-22"
-        signed_by: "Reza Mohammadi, Technical Lead"
-      - file: "docs/test-reports/bias-audit-2026-05.pdf"
-        date: "2026-05-01"
-        signed_by: "Dr. Maria Santos, Fairness Reviewer"
+        Not yet quantitatively benchmarked across demographic groups. Known
+        risk: analysis quality may vary between Dutch and English and across
+        cultural expression; planned bias review before commercial release.
+    test_logs: []   # pre-commercial; no signed external test reports yet
     predetermined_change_tests: >
-      Regression test suite (300 prompts) runs automatically on every
-      model update. Sentiment model retrained versions validated on
-      held-out test set (N=800) before deployment.
+      Compliance-gate tests and Jungche adversarial anchors run automatically on
+      every model or prompt update; failures block the change.
 
   cybersecurity_measures: >
-    TLS 1.3 for all communications. Data encrypted at rest (AES-256-GCM).
-    API authentication via OAuth 2.0 (therapist login) + API keys (EHR
-    integration). Rate limiting (100 req/min per user). Input sanitization
-    against prompt injection (allow-list approach). Dependency scanning
-    via Snyk (weekly). Penetration testing quarterly (external firm).
-    SBOM maintained via CycloneDX. Incident response plan documented.
+    TLS in transit and encryption at rest. JWT (HS256, 24 h) auth issued by the
+    backend; all authorization checks centralised in the backend. Jungche live
+    chat adds an HMAC-SHA256 X-Jungche-Secret header on the BE->Cortex SSE proxy.
+    Cortex has no auth surface and trusts only BE-dispatched SQS messages, which
+    carry a requestId for idempotency and are re-validated against DB state.
+    PHI access is logged to phi_access_log; AI-content edits and compliance
+    decisions to jungche_audit_log. Application logs never contain PHI or
+    LLM-generated text. AssemblyAI EU endpoint is mandatory; the US endpoint is
+    prohibited. Secrets live in environment files, never in code.
 
 monitoring:
   capabilities_and_limitations: >
-    Capable of: CBT-based conversational support, crisis indicator
-    detection, session summarization, sentiment tracking over time.
-    Not capable of: clinical diagnosis, medication recommendation,
-    treatment of severe psychiatric conditions (psychosis, active
-    mania), real-time voice or video interaction, treating minors.
+    Capable of: transcribing sessions, drafting notes in 20+ formats, producing
+    cross-session pattern analysis, character/relationship maps, Rose of Leary
+    scores, approach-specific insights, paralinguistic labels, and crisis/risk
+    alerts for therapist attention. Not capable of and not intended for:
+    diagnosis, treatment or medication recommendation, autonomous action,
+    patient-facing interaction, or use with minors. All output is advisory.
   accuracy_per_group:
-    - group: "Adults 18-35"
-      accuracy: "Relevance: 4.3/5.0, Crisis detection: 99.8%"
-    - group: "Adults 36-55"
-      accuracy: "Relevance: 4.1/5.0, Crisis detection: 99.7%"
-    - group: "Adults 56+"
-      accuracy: "Relevance: 4.0/5.0, Crisis detection: 99.5%"
-    - group: "English-speaking users"
-      accuracy: "Relevance: 4.3/5.0"
-    - group: "Dutch-speaking users"
-      accuracy: "Relevance: 3.9/5.0"
+    - group: "Dutch-language sessions (primary market)"
+      accuracy: "Not yet quantitatively benchmarked; primary target language, qualitatively validated on demo data"
+    - group: "English-language sessions"
+      accuracy: "Not yet quantitatively benchmarked; supported, smaller validation surface"
   overall_expected_accuracy: >
-    Therapist relevance rating: 4.2/5.0 across all sessions. Crisis
-    detection recall: 99.7%. Response coherence: 4.5/5.0.
+    No quantitative accuracy figure is claimed for this pre-commercial release.
+    Output integrity is enforced structurally (faithfulness to transcript, the
+    finalize_node compliance gate, and regression anchors) rather than via a
+    published metric. A measured benchmark is planned before commercial launch.
   foreseeable_unintended_outcomes: >
-    Over-reliance by therapist on AI suggestions reducing independent
-    clinical judgment. Patient developing emotional attachment to AI
-    personality. Inappropriate responses to culturally specific distress
-    expressions. Delayed crisis response if system flags are ignored.
+    Therapist over-reliance on AI suggestions, reducing independent judgment;
+    plausible-but-unfaithful note content (hallucination); a missed or
+    mis-ranked crisis indicator; and quality variation across languages or
+    cultural expression. Each is mitigated by therapist review, the compliance
+    gate, evidence-linked insights, and explicit AI-generated marking.
   risk_sources:
     health_and_safety: >
-      Missed crisis detection could delay emergency intervention.
-      Inappropriate therapeutic advice could worsen patient condition.
-      System downtime during active crisis conversation.
+      A missed or under-weighted crisis/suicide-risk indicator could delay
+      therapist intervention; an unfaithful note or insight could mislead
+      clinical documentation. Mitigated by therapist-in-the-loop review,
+      conservative crisis alerting, and the compliance gate.
     fundamental_rights: >
-      Patient privacy — conversation data is special category (health)
-      under GDPR Art. 9. Right to human decision-making in healthcare.
-      Right to explanation of AI-assisted decisions.
+      Therapy session data is special-category health data under GDPR Art. 9.
+      Risks to privacy, data minimisation, and the right to human decision-making
+      in care. Mitigated by EU-only residency, PHI access logging, strict log
+      hygiene, and therapist-only access to a patient's data.
     discrimination: >
-      Accuracy gap for Dutch-speaking users (3.9 vs 4.3 for English).
-      Potential bias in sentiment analysis for non-native speakers.
-      Cultural differences in emotional expression may affect
-      classification accuracy.
+      Analysis quality may differ between Dutch and English and across cultural
+      modes of emotional expression, risking uneven usefulness. Mitigated by a
+      planned bias review and by surfacing confidence and evidence to the therapist.
   human_oversight_measures: >
-    Therapists maintain full authority over treatment decisions. AI
-    suggestions clearly labeled as non-binding recommendations.
-    Emergency stop button halts AI participation immediately.
-    Monthly clinical advisory board review of flagged conversations.
-    Quarterly bias audit on production data.
+    The therapist reviews and may edit or ignore every output; insight documents
+    are advisory and marked AI-generated; no output bypasses the finalize_node
+    gate; the therapist controls recording and deletion. No autonomous action is
+    taken on any patient.
   output_interpretation_measures: >
-    Confidence indicators (low/medium/high) on each response. CBT
-    technique category labels. Sentiment trajectory visualization
-    (line chart over session). Risk flag explanations in plain
-    language. Weekly summary reports for clinic administrators.
+    Machine-readable aiGenerated markers, AI-disclaimer banners, a Jungche
+    reasoning disclaimer, confidence indicators on classifications, and evidence
+    quote chips linking insights to transcript passages.
   input_data_specifications: >
-    Text input: UTF-8 encoded, max 2000 characters per message.
-    Supported languages: English (primary), Dutch, German (beta).
-    Session context: up to 20 previous messages retained.
-    File uploads: not supported (text-only interaction).
+    Inputs: session audio (16 kHz mono WAV) and the resulting transcript text;
+    therapist notes and chat messages. Primary language Dutch, English supported.
+    No patient-facing input; the patient never interacts with the system.
 
 performance_metrics:
   appropriateness_description: >
-    Therapist relevance rating (5-point Likert) chosen as primary metric
-    because clinical validity of AI therapy support can only be assessed
-    by qualified practitioners — automated metrics (BLEU, ROUGE) do not
-    capture therapeutic appropriateness. Crisis detection recall
-    prioritized over precision because missed crises pose immediate
-    safety risks; Type II errors are categorically more dangerous than
-    Type I in a mental health context. F1 score used for sentiment
-    classification as a balanced measure given uneven emotion category
-    distribution. Discrimination assessment uses demographic parity
-    difference because equal treatment across demographic groups is both
-    legally required under the AI Act and clinically essential.
+    Because Freudche is a pre-commercial documentation and decision-support tool
+    that trains no models, conventional ML accuracy metrics (BLEU, F1, AUC) would
+    misrepresent what matters. The relevant quality properties are FAITHFULNESS
+    (output is grounded in the actual transcript, not invented), SAFETY (the
+    finalize_node gate blocks unsafe or non-compliant content), and CONTRACT
+    INTEGRITY (Jungche surfaces exactly the fields the engine produces). These
+    are enforced and tested directly rather than estimated by a single score.
+    A measured, demographically-stratified benchmark is planned before
+    commercial launch, at which point quantitative metrics will be added here.
 
 risk_management:
   system_description: >
-    Continuous risk management process covering the full lifecycle from
-    design through post-market monitoring. Reviewed quarterly by clinical
-    advisory board (3 licensed therapists) and technical team. Aligned
-    with ISO/IEC 23894:2023 (AI risk management guidance).
+    Risk management spans design through (planned) post-market monitoring,
+    centred on the finalize_node compliance gate as the single control point for
+    all LLM-generated text and on therapist-in-the-loop review for every output.
+    The system is pre-commercial (live demo only); the process is being formalised
+    ahead of commercial release and NEN 7510 / ISO 27001 certification (planned
+    Q3-Q4 2026).
   risk_identification: >
-    Risks identified through: STRIDE threat modelling, clinical
-    consultation (12 therapists, 3 practices), regulatory analysis of
-    AI Act requirements, user research with 50 therapists, adversarial
-    red-teaming of the AI system, review of mental health AI incident
-    reports from peer organizations.
+    Risks identified through architectural threat modelling (service boundaries,
+    PHI flows, prompt-injection against Jungche), the founder's clinical and
+    engineering review, AI Kompas voor de GGZ guidance, and adversarial testing
+    of the compliance gate and Jungche tool surfaces.
   risk_estimation: >
-    Each risk scored on likelihood (1-5) and severity (1-5), yielding
-    a composite score (1-25). Risks with score >= 15 classified as
-    critical. Severity weighting emphasizes patient safety outcomes.
+    Risks are weighed by clinical-safety impact (missed crisis indicator,
+    misleading documentation) and data-protection impact (special-category PHI
+    exposure) against likelihood given the therapist-in-the-loop design.
   risk_evaluation: >
-    10 critical risks identified, 23 moderate, 8 low. All critical
-    risks have active mitigation measures. Risk register maintained
-    in internal compliance system with quarterly review cycle.
+    Clinical-safety and PHI risks are treated as the highest priority and gate
+    release; contract-drift between the engine and Jungche is treated as a
+    blocking defect. A formal risk register is being established for commercial
+    release.
   risk_mitigation_measures: >
-    Crisis detection dual-layer system (rules + ML). Content safety
-    filters with allow-list approach. Therapist override and emergency
-    stop. Rate limiting and input validation. EU-only data residency.
-    Regular penetration testing. Clinical advisory board governance.
-    Patient consent and transparency measures.
+    finalize_node three-stage compliance gate (deny-list -> classifier ->
+    rewrite-once -> BLOCK); therapist review and editability of all output;
+    advisory, AI-marked insights; EU-only data residency (AssemblyAI EU, Vertex
+    AI EU, EU hosting); PHI access logging and strict log hygiene; HMAC-secured
+    Jungche proxy; SQS idempotency with DB re-validation; conservative crisis
+    alerting; Article 50 transparency markers throughout.
   residual_risks: >
-    Residual risk of missed crisis in novel expression patterns
-    (estimated < 0.3%, based on adversarial testing). Residual risk
-    of cultural bias in sentiment analysis for underrepresented
-    language patterns (mitigated by quarterly bias audits and
-    planned expansion of training data).
+    Residual risk of a missed crisis indicator in novel expression, of
+    plausible-but-unfaithful generated content despite the gate, and of quality
+    variation across languages/cultures pending a bias review. The therapist's
+    clinical judgment remains the backstop for all of these.
   lifecycle_process: >
-    Risk register reviewed quarterly by clinical advisory board.
-    Post-market incident reports trigger immediate risk re-assessment.
-    Annual comprehensive risk review aligned with Article 9(2).
-    New model versions undergo full risk assessment before deployment.
+    Compliance-gate and adversarial regression anchors run in CI on every
+    relevant change. A formal periodic risk review will be established at
+    commercial release; until then risk is managed continuously through the
+    gate, the anchors, and architectural review.
 
 lifecycle_changes:
   changes:
-    - date: "2025-11-15"
-      description: "Migrated LLM backend from GPT-4 to Gemini 2.0 Flash"
-      impact: "Response style changed; latency improved 40%; cost reduced 60%"
-      compliance_maintained: true
-    - date: "2026-03-01"
-      description: "Added sentiment trajectory visualization to therapist dashboard"
-      impact: "Enhanced therapist interpretability of patient emotional patterns"
-      compliance_maintained: true
-    - date: "2026-05-10"
-      description: "Updated crisis detection rules for Dutch-language patterns"
-      impact: "Dutch crisis detection recall improved from 98.9% to 99.5%"
+    - date: "2026-05-28"
+      description: "Pre-commercial baseline recorded for this declaration (live demo at demo.freudche.com)"
+      impact: "Establishes the documented baseline; commercial change log begins at first production release"
       compliance_maintained: true
 
 standards:
   harmonised_standards: []
   alternative_solutions: >
-    No harmonised standards for the AI Act published as of May 2026.
-    Compliance achieved through alignment with: ISO/IEC 42001:2023
-    (AI management system), ISO/IEC 23894:2023 (AI risk management),
-    ISO 13485:2016 (medical device QMS, applied by analogy for
-    healthcare AI), and internal quality processes documented in
-    the quality management system per Article 17.
+    No harmonised standards under the AI Act are published as of May 2026.
+    Freudche aligns its practices with AI Kompas voor de GGZ (AIC4NL, May 2025),
+    GDPR/AVG (EU data residency, consent, data minimisation, right to deletion),
+    and OWASP web/AI security guidance, with NEN 7510 and ISO 27001 certification
+    planned for Q3-Q4 2026 (not yet certified).
   other_standards:
-    - reference: "ISO/IEC 42001:2023"
-      description: "AI management system — organizational governance framework"
-    - reference: "ISO/IEC 23894:2023"
-      description: "AI risk management guidance"
-    - reference: "ISO 13485:2016"
-      description: "Medical device QMS (applied by analogy)"
-    - reference: "OWASP AI Security Top 10 v1.0"
-      description: "AI-specific security threat mitigation"
-    - reference: "IEEE 7010-2020"
-      description: "Well-being impact assessment for AI"
+    - reference: "AI Kompas voor de GGZ (AIC4NL, May 2025)"
+      description: "Dutch framework for responsible AI in mental healthcare — followed"
+    - reference: "NEN 7510 / ISO 27001"
+      description: "Information security for healthcare — certification planned Q3-Q4 2026 (not yet held)"
+    - reference: "OWASP Top 10 / OWASP for LLM Applications"
+      description: "Web and AI-specific security threat mitigation"
 
 declaration_of_conformity:
-  file: "docs/eu-declaration-of-conformity-2026-05.pdf"
-  provider_name: "Freudche B.V."
-  system_name: "Freudche AI Therapy Assistant"
-  declaration_date: "2026-05-17"
+  file: ""   # none issued — see notes
+  provider_name: "Reza Labs B.V. (trading as Freudche)"
+  system_name: "Freudche — AI co-pilot for therapists"
+  declaration_date: "2026-05-28"
+  notes: >
+    No EU declaration of conformity has been issued. Under the provider's
+    current self-assessment the system is not high-risk under Article 6 (active
+    obligation: Article 50 transparency), so an Article 47 DoC and CE marking are
+    not applicable. This section is retained for completeness; if a regulatory
+    ruling reclassifies the system as high-risk, a DoC would be required.
 
 post_market_monitoring:
   evaluation_system: >
-    Production monitoring includes: response latency tracking (p95 < 3s),
-    error rate monitoring (target < 0.1%), crisis detection accuracy
-    validated against therapist confirmations (weekly reconciliation),
-    user satisfaction surveys (monthly NPS), therapist feedback
-    collection (per-session rating), sentiment model drift detection
-    (weekly embedding distance check).
+    The system is pre-commercial (live demo only); a full post-market monitoring
+    system is planned for commercial release. Planned monitoring: error and
+    latency tracking, compliance-gate block-rate monitoring, therapist feedback
+    on note and insight quality, and reconciliation of crisis alerts against
+    therapist confirmation — all on metadata only, never PHI in logs.
   monitoring_plan: >
-    Per Article 72(3): Continuous automated monitoring of key performance
-    metrics with alerting (PagerDuty). Monthly aggregate analysis report
-    to clinical advisory board. Quarterly clinical review board meeting
-    with bias audit results. Semi-annual external bias audit on
-    production data by independent reviewer. Annual comprehensive
-    performance review with updated risk assessment. Incident reporting
-    per Article 73 within 15 days of serious incident awareness.
-    All monitoring data retained for 10 years per Article 18.
+    Per Article 72(3) (to be activated at commercial launch): continuous
+    metadata-level monitoring with alerting, periodic review of compliance-gate
+    behaviour and Jungche contract integrity, a planned demographic bias review,
+    and incident handling. Serious-incident reporting obligations will be
+    assessed against the final classification. Until commercial launch, monitoring
+    is limited to the demo environment.
 
-# Article 11(1): Freudche is a start-up and elects the SME simplified route.
-# (Recorded for transparency; the full Annex IV elements above are still provided.)
+# Article 11(1): Reza Labs B.V. (Freudche) is a start-up and would elect the SME
+# simplified route if the system is ultimately treated as high-risk. Recorded for
+# transparency; the full Annex IV elements above are provided regardless.
 simplified_documentation:
   uses_simplified_route: true
   organisation_size: "startup"
   commission_form_reference: ""
   justification: >
-    Reza Labs B.V. qualifies as a micro/start-up enterprise under the SME
-    definition (headcount < 10, founded 2025); elects the Article 11(1)
-    simplified documentation route while still providing the full Annex IV set.
+    Reza Labs B.V. (trading as Freudche) qualifies as a micro/start-up
+    enterprise under the SME definition (solo-founded, headcount < 10). It would
+    elect the Article 11(1) simplified documentation route if a regulatory ruling
+    treats the system as high-risk, while still providing the full Annex IV set.
 
-# Article 11(2): delivered as software (SaaS/API), not a product covered by
-# Annex I, Section A harmonisation legislation, so no merged documentation set.
+# Article 11(2): delivered as software (SaaS), and the provider's position is that
+# it is NOT a product covered by Annex I, Section A harmonisation legislation
+# (specifically: outside Medical Device Regulation scope). This is contested —
+# see development.design_specifications.classification_choices.
 product_harmonisation:
   under_annex_i_section_a: false
